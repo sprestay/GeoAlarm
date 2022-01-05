@@ -58,4 +58,25 @@ class BackEnd {
       return null;
     }
   }
+
+  Future<void> googleFindAddress({required String address}) async {
+    String endpoint =
+        "https://maps.googleapis.com/maps/api/place/findplacefromtext/json";
+    // Map<String, dynamic> params = {
+    //   "fields": "formatted_address",
+    //   "input": address,
+    //   "inputtype": "textquery",
+    //   "key": google_api_key
+    // };
+    String queryString = Uri.encodeQueryComponent([
+      "fields=formatted_address",
+      "input=$address",
+      "inputtype=textquery",
+      "key=$google_api_key"
+    ].join("&"));
+    // String queryString = Uri.parse(queryParameters: params).query;
+    Uri url = Uri.parse(endpoint + "?" + queryString);
+    dynamic response = await http.get(url);
+    print(response.body);
+  }
 }

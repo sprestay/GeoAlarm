@@ -38,7 +38,7 @@ class Alarm {
     } else {
       all_db.add(id);
     }
-    db.setStringList('alarms', all_db);
+    await db.setStringList('alarms', all_db);
   }
 
   Map<String, dynamic> toJson() {
@@ -74,9 +74,9 @@ class Alarm {
     /// можно было бы использовать void функцию
   }
 
-  void toggleAlarm() async {
+  void updateAlarm() async {
     SharedPreferences db = await SharedPreferences.getInstance();
-    db.setString(id, jsonEncode(toJson()));
+    await db.setString(id, jsonEncode(toJson()));
   }
 
   void deleteAlarm() async {
@@ -84,6 +84,6 @@ class Alarm {
     db.remove(id);
     List<String>? id_list = db.getStringList("alarms");
     id_list?.remove(id);
-    db.setStringList("alarms", id_list != null ? id_list : []);
+    await db.setStringList("alarms", id_list != null ? id_list : []);
   }
 }

@@ -1,4 +1,7 @@
 import 'dart:math';
+import 'package:flutter/material.dart';
+import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
+import '../widgets/InfoWidget.dart';
 
 // val 1-100
 // distance 1-100
@@ -59,4 +62,32 @@ String customAddressFormatter(List adresses) {
     result = political.map((e) => e['short_name']).toList();
   }
   return upperfirst(result.join(', '));
+}
+
+void callRingtone() {
+  FlutterRingtonePlayer.play(
+    android: AndroidSounds.alarm,
+    ios: IosSounds.alarm,
+    looping: false, // Android only - API >= 28
+    volume: 100, // Android only - API >= 28
+    asAlarm: true, // Android only - all APIs
+  );
+}
+
+void showBlockModalWindow(BuildContext context, String msg,
+    [Function? submit = null, Function? skip = null, bool isClosable = true]) {
+  Navigator.push(
+      context,
+      PageRouteBuilder(
+          barrierColor: Color.fromRGBO(163, 158, 158, 0.5),
+          fullscreenDialog: true,
+          opaque: false,
+          pageBuilder: (_, __, ___) {
+            return InfoWidget(
+              msg: msg,
+              submit: submit,
+              skip: skip,
+              isClosable: isClosable,
+            );
+          }));
 }

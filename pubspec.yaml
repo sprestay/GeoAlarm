@@ -45,6 +45,8 @@ dependencies:
   shared_preferences: ^2.0.11
   uuid: ^3.0.5
   flutter_slidable: ^1.2.0
+  # ringtone_player: ^0.1.1
+  flutter_ringtone_player: ^3.1.1
 
 dev_dependencies:
   flutter_test:

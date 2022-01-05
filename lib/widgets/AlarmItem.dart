@@ -35,7 +35,6 @@ class _AlarmItemState extends State<AlarmItem> {
           ),
           title: Text(alarm.destination,
               style: AppFontStyle.inter_medium_15_121212),
-          subtitle: Text(alarm.isActive.toString()),
           value: alarm.isActive,
           activeColor: Color(0xFF4FC28F),
           inactiveTrackColor: Color(0xFFE9E9E9),
@@ -44,17 +43,18 @@ class _AlarmItemState extends State<AlarmItem> {
             setState(() {
               alarm.isActive = selected;
             });
-            alarm.toggleAlarm();
+            alarm.updateAlarm();
             if (widget.callback != null) {
               widget.callback!();
             }
           }),
       endActionPane: ActionPane(motion: ScrollMotion(), children: [
         SlidableAction(
-          onPressed: (context) {
+          onPressed: (context) async {
             alarm.deleteAlarm();
             if (widget.onDelete != null) {
-              widget.onDelete!();
+              await widget.onDelete!();
+              await widget.callback!();
             }
             ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text('${alarm.destination} удален')));

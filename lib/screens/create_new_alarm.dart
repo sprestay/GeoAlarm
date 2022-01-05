@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:geoalarm/styles/fonts.dart';
+import 'package:ionicons/ionicons.dart';
 import 'package:latlong2/latlong.dart' as latLng;
 import 'package:geolocator/geolocator.dart';
 import '../service/backend.dart';
@@ -27,25 +28,26 @@ class _CreateNewAlarmState extends State<CreateNewAlarm> {
   late latLng.LatLng marker_position;
   late MapOptions options;
   String input_string = '';
-  Key? key_to_pass_to_input;
   bool secondStep = false;
   double sliderValue = 10;
   final TextEditingController _controller = TextEditingController();
   List<String> suggestions = [];
-  bool inputIsFocused = false;
+  bool shoulMakeApiRequest = true; // костыль
+  /// Мы перезаписываем значение в контроллере в двух случаях -
+  /// когда значение меняет руками сам пользователь,
+  /// и когда значение записывается после api запроса на бэк.
+  /// Чтобы избежать запроса predictions, при подстановке значения с бэка - используем этот костыль
 
   @override
   void initState() {
     marker_position = latLng.LatLng(59.929479, 30.321312);
     _controller.addListener(() {
       final String text = uf.upperfirst(_controller.text);
-      apiRequest({"type": "addr", "value": text});
-      _controller.value = _controller.value.copyWith(
-        text: text,
-        selection:
-            TextSelection(baseOffset: text.length, extentOffset: text.length),
-        composing: TextRange.empty,
-      );
+      if (shoulMakeApiRequest) {
+        if (text.length > 5) apiRequest({"type": "addr", "value": text});
+      } else {
+        shoulMakeApiRequest = true;
+      }
     });
     options = MapOptions(
         interactiveFlags: secondStep ? 0 : 1, // карта неактивна на вотром шаге
@@ -65,6 +67,7 @@ class _CreateNewAlarmState extends State<CreateNewAlarm> {
             mapOnMove();
           });
         });
+    getUserPosition();
   }
 
   void apiRequest(Map<String, dynamic> req) async {
@@ -84,9 +87,9 @@ class _CreateNewAlarmState extends State<CreateNewAlarm> {
           input_string = uf.upperfirst(resp!['address'][0]);
           marker_position =
               latLng.LatLng(resp['latlng'][0]['lat'], resp['latlng'][0]['lng']);
-          key_to_pass_to_input = Key(input_string.toString());
         });
-        _controller.text = input_string;
+        _controller.text = uf.upperfirst(resp['address'][0]);
+        shoulMakeApiRequest = false;
         controller.move(marker_position, controller.zoom);
       }
     } else if (req['type'] == "addr") {
@@ -95,11 +98,29 @@ class _CreateNewAlarmState extends State<CreateNewAlarm> {
       if (responses != null) {
         List<String> sug =
             responses.map((e) => e['description'].toString()).toList();
+        print("GOT ${sug.length}");
         setState(() {
           suggestions = sug;
         });
       }
     }
+  }
+
+  void zoomIn() {
+    controller.move(marker_position, controller.zoom + 1);
+  }
+
+  void zoomOut() {
+    controller.move(marker_position, controller.zoom - 1);
+  }
+
+  void getUserPosition() async {
+    Position pos = await Geolocator.getCurrentPosition();
+    setState(() {
+      marker_position = latLng.LatLng(pos.latitude, pos.longitude);
+    });
+    controller.move(marker_position, controller.zoom);
+    apiRequest({"type": "geo"});
   }
 
   void mapOnMove() {
@@ -167,9 +188,55 @@ class _CreateNewAlarmState extends State<CreateNewAlarm> {
                         ]),
                       ],
                     ),
-                    secondStep ? blockDetermineRadius() : blockFindAddress()
+                    secondStep ? blockDetermineRadius() : blockFindAddress(),
+                    secondStep
+                        ? Container()
+                        : Positioned(
+                            right: 30,
+                            bottom: 250,
+                            child: mapControllButtons()),
                   ])))
     ]));
+  }
+
+  Widget mapControllButtons() {
+    /// не можем обращаться к контроллеру внутри функции - получаем late initialization error, поэтому
+    /// не можем проверить, можем ли зумить, или нет (и отображать / не отображать) кнопки
+    return Container(
+      width: 50,
+      height: 240,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          IconButton(
+              onPressed: () => zoomIn(),
+              icon: Icon(
+                Ionicons.add,
+                size: 60,
+                color: Colors.black,
+              )),
+          IconButton(
+              onPressed: () => zoomOut(),
+              icon: Icon(
+                Ionicons.remove,
+                size: 60,
+                color: Colors.black,
+              )),
+          SizedBox(
+            height: 30,
+          ),
+          IconButton(
+              onPressed: () {
+                getUserPosition();
+              },
+              icon: Icon(
+                Ionicons.navigate_circle_outline,
+                size: 60,
+                color: Colors.black,
+              )),
+        ],
+      ),
+    );
   }
 
   Widget blockDetermineRadius() {
@@ -220,7 +287,7 @@ class _CreateNewAlarmState extends State<CreateNewAlarm> {
                   longitude: marker_position.longitude,
                   radius: uf.sliderValueToDistance(sliderValue),
                   destination: input_string,
-                  isActive: true,
+                  isActive: false,
                 );
                 a.saveToDB();
                 // Navigator.pop(context);
@@ -271,9 +338,12 @@ class _CreateNewAlarmState extends State<CreateNewAlarm> {
               height: 20,
             ),
             MainButton(
+              disabled: input_string.isEmpty,
+              active: input_string.isNotEmpty,
               text: "далее",
               callback: () {
                 setState(() {
+                  input_string = _controller.text;
                   secondStep = true;
                 });
               },

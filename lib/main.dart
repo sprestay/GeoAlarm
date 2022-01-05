@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:geoalarm/screens/test.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import './screens/alarm_list.dart';
-// import './screens/create_new_alarm.dart';
-// import './screens/test.dart';
 import 'dart:isolate';
 import 'dart:async';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
-// import './service/foreground_service.dart';
+import './styles/info_messages.dart';
 
 /// для foreground services
 import './models/alarm.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
+import './service/utility_functions.dart' as uf;
 
 void send_message(String msg) async {
   const String bot_token = '1485731391:AAGZMFiYjMdT-GBJkaMOq3PZJJtFYcXLRag';
@@ -34,18 +34,15 @@ void startCallback() async {
   FlutterForegroundTask.setTaskHandler(TrackingTask());
 }
 
-void updateCallback() async {
-  print("in updateCallback");
-  FlutterForegroundTask.setTaskHandler(TrackingTask());
-}
-
 class TrackingTask extends TaskHandler {
   StreamSubscription<Position>? streamSubscription;
 
   TrackingTask() : super();
 
-  @override
-  Future<void> onStart(DateTime timestamp, SendPort? sendPort) async {
+  Future<List<Alarm>> getListOfAlarms([List<Alarm>? al = null]) async {
+    if (al != null) {
+      return al.where((element) => element.isActive).toList();
+    }
     SharedPreferences prefs = await SharedPreferences.getInstance();
     List<String>? ids = prefs.getStringList("alarms");
     List<Alarm> targets = [];
@@ -63,6 +60,12 @@ class TrackingTask extends TaskHandler {
       await Future.wait(to_wait);
       targets = targets.where((element) => element.isActive).toList();
     }
+    return targets;
+  }
+
+  @override
+  Future<void> onStart(DateTime timestamp, SendPort? sendPort) async {
+    List<Alarm> targets = await getListOfAlarms();
 
     /// Если нет будильников - то дропаем сервис
     sendPort?.send(targets.length);
@@ -70,16 +73,27 @@ class TrackingTask extends TaskHandler {
     final positionStream = Geolocator.getPositionStream(
         locationSettings: LocationSettings(distanceFilter: 30));
 
-    streamSubscription = positionStream.listen((event) {
+    streamSubscription = positionStream.listen((event) async {
+      bool should_update_targets = false;
       for (Alarm alarm in targets) {
         double distance = Geolocator.distanceBetween(
             event.latitude, event.longitude, alarm.latitude, alarm.longitude);
         if (distance <= alarm.radius) {
           send_message("Достигли точки назначения! ${alarm.destination}");
-          // удалить из массива
+          uf.callRingtone();
+          alarm.isActive = false;
+          alarm.updateAlarm();
+          should_update_targets = true;
+          break;
         }
-        send_message(
-            '${alarm.destination}, оставшееся расстояние - ${distance.round()}');
+        // send_message(
+        //     '${alarm.destination}, оставшееся расстояние - ${distance.round()}');
+      }
+
+      // вызывается после срабатывания одного из будильников, для пересортировки
+      if (should_update_targets) {
+        targets = await getListOfAlarms(targets);
+        should_update_targets = false;
       }
     });
   }
@@ -90,7 +104,11 @@ class TrackingTask extends TaskHandler {
   @override
   Future<void> onDestroy(DateTime timestamp) async {
     print('Destroyng');
-    await FlutterForegroundTask.clearAllData();
+
+    /// метод сносит все sharedPreferences.
+    /// Либо не вызывать его, либо сохранять свои prefы
+
+    // await FlutterForegroundTask.clearAllData();
   }
 }
 
@@ -127,9 +145,10 @@ class _MyAppState extends State<MyApp> {
 
     if (receivePort != null) {
       _receivePort = receivePort;
-      _receivePort?.listen((message) {
+      _receivePort?.listen((message) async {
         if (message is int && message == 0) {
-          stopForegroundTask();
+          send_message("Stopping service cause length == 0");
+          await stopForegroundTask();
         }
       });
       return true;
@@ -167,16 +186,13 @@ class _MyAppState extends State<MyApp> {
   }
 
   void getCurrentPermission() async {
-    print("Checking permissiongs");
     if (await Permission.locationAlways.request().isGranted) {
       Position p = await Geolocator.getCurrentPosition();
       setState(() {
         isGranted = true;
         position = p;
       });
-      print("granted!");
     } else {
-      print("not granted");
       setState(() {
         isGranted = false;
       });
@@ -200,7 +216,6 @@ class _MyAppState extends State<MyApp> {
           child: AlarmListScreen(
         onStart: startForegroundTask,
         onStop: stopForegroundTask,
-        onUpdate: updateCallback,
       )),
     );
   }
