@@ -31,6 +31,8 @@ class _CustomAppBarState extends State<CustomAppBar> {
   Widget build(BuildContext context) {
     return AppBar(
       backgroundColor: Colors.transparent,
+      automaticallyImplyLeading:
+          false, //  должна исчезнуть стандартная кнопка назад
       bottomOpacity: 0.0,
       elevation: 0.0,
       centerTitle: true,

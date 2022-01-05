@@ -27,6 +27,8 @@ class Alarm {
     fromDB(id);
   }
 
+  Alarm.constructorWithAsyncRequest() {}
+
   Future<void> saveToDB() async {
     SharedPreferences db = await SharedPreferences.getInstance();
     db.setString(id, jsonEncode(toJson()));
@@ -62,10 +64,14 @@ class Alarm {
     created = js['created'];
   }
 
-  void fromDB(String id) async {
+  Future<bool> fromDB(String id) async {
     SharedPreferences db = await SharedPreferences.getInstance();
     Map<String, dynamic> js = jsonDecode(db.getString(id)!);
     fromJson(js);
+    return true;
+
+    /// костыль, чтобы дожидаться завершения
+    /// можно было бы использовать void функцию
   }
 
   void toggleAlarm() async {

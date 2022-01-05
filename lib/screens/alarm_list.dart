@@ -10,9 +10,15 @@ import '../models/alarm.dart';
 import '../service/globals.dart' as globals;
 import '../widgets/AlarmItem.dart';
 import '../service/foreground_service.dart';
+import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 
 class AlarmListScreen extends StatefulWidget {
-  const AlarmListScreen({Key? key}) : super(key: key);
+  Function? onStart;
+  Function? onStop;
+  Function? onUpdate;
+
+  AlarmListScreen({Key? key, this.onStart, this.onStop, this.onUpdate})
+      : super(key: key);
 
   @override
   _AlarmListScreenState createState() => _AlarmListScreenState();
@@ -20,7 +26,6 @@ class AlarmListScreen extends StatefulWidget {
 
 class _AlarmListScreenState extends State<AlarmListScreen> {
   List<Alarm> alarms = [];
-  ForegroundService service = ForegroundService();
 
   @override
   void initState() {
@@ -54,11 +59,68 @@ class _AlarmListScreenState extends State<AlarmListScreen> {
                       shrinkWrap: true,
                       primary: false,
                       itemBuilder: (BuildContext context, int index) {
-                        return AlarmItem(alarm: alarms[index]);
+                        return AlarmItem(
+                          alarm: alarms[index],
+                          callback: () {
+                            if (widget.onStart != null) {
+                              send_message("Calling update function");
+                              widget.onStart!();
+                            }
+                          },
+                          onDelete: () {
+                            List<Alarm> tmp = alarms;
+                            tmp.removeAt(index);
+                            setState(() {
+                              alarms = tmp;
+                            });
+                          },
+                        );
                       },
                       separatorBuilder: (BuildContext context, int index) =>
                           SizedBox(height: 10),
-                      itemCount: alarms.length)
+                      itemCount: alarms.length),
+                  Row(
+                    children: [
+                      ElevatedButton(
+                          onPressed: () {
+                            if (widget.onStart != null) {
+                              send_message("calling widget.onStart");
+                              widget.onStart!();
+                            }
+                          },
+                          child: Text("StartService")),
+                      ElevatedButton(
+                          onPressed: () {
+                            if (widget.onStop != null) {
+                              send_message("calling stop button");
+                              widget.onStop!();
+                            }
+                          },
+                          child: Text("StopService")),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      ElevatedButton(
+                          onPressed: () async {
+                            print(await FlutterForegroundTask
+                                .isIgnoringBatteryOptimizations);
+                          },
+                          child: Text("Игнор?")),
+                      ElevatedButton(
+                          onPressed: () async {
+                            print(await FlutterForegroundTask
+                                .openIgnoreBatteryOptimizationSettings());
+                          },
+                          child: Text("Настройки")),
+                      ElevatedButton(
+                          onPressed: () async {
+                            print(await FlutterForegroundTask
+                                .requestIgnoreBatteryOptimization());
+                          },
+                          child: Text("Разрешения"))
+                    ],
+                  )
                 ],
               ),
             ),
@@ -66,12 +128,9 @@ class _AlarmListScreenState extends State<AlarmListScreen> {
         ),
         floatingActionButton: FloatingActionButton(
           child: AppIcons.new_alarm,
-          onPressed: () {
-            // service.startForegroundTask(
-            //     Alarm(latitude: 10, longitude: 10, radius: 10));
-            service.addData("adolf");
-            // Navigator.push(context,
-            //     MaterialPageRoute(builder: (context) => CreateNewAlarm()));
+          onPressed: () async {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => CreateNewAlarm()));
           },
           backgroundColor: Color(0xFF4FC28F),
         ),
