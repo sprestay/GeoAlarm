@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:geoalarm/screens/test.dart';
+import 'package:geoalarm/service/foreground_service.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import './screens/alarm_list.dart';
@@ -8,6 +9,7 @@ import 'dart:async';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import './styles/info_messages.dart';
+import './screens/get_permissions.dart';
 
 /// для foreground services
 import './models/alarm.dart';
@@ -74,27 +76,53 @@ class TrackingTask extends TaskHandler {
         locationSettings: LocationSettings(distanceFilter: 30));
 
     streamSubscription = positionStream.listen((event) async {
-      bool should_update_targets = false;
-      for (Alarm alarm in targets) {
-        double distance = Geolocator.distanceBetween(
-            event.latitude, event.longitude, alarm.latitude, alarm.longitude);
-        if (distance <= alarm.radius) {
-          send_message("Достигли точки назначения! ${alarm.destination}");
-          uf.callRingtone();
-          alarm.isActive = false;
-          alarm.updateAlarm();
-          should_update_targets = true;
-          break;
+      List<Alarm> done_alarms = targets.where((element) {
+        double distance = Geolocator.distanceBetween(event.latitude,
+            event.longitude, element.latitude, element.longitude);
+        if (distance <= element.radius) {
+          return true;
+        } else {
+          return false;
         }
-        // send_message(
-        //     '${alarm.destination}, оставшееся расстояние - ${distance.round()}');
+      }).toList();
+
+      done_alarms.forEach((element) {
+        element.isActive = false;
+        element.updateAlarm();
+      });
+
+      if (done_alarms.length > 0) {
+        send_message("Достигли пункта назначения!");
+        FlutterForegroundTask.wakeUpScreen();
+        uf.callRingtone();
+        Future.delayed(Duration(seconds: 10)).then((value) => uf.stopMelody());
+        startCallback();
       }
 
+      // bool should_update_targets = false;
+      // for (Alarm alarm in targets) {
+      //   double distance = Geolocator.distanceBetween(
+      //       event.latitude, event.longitude, alarm.latitude, alarm.longitude);
+      //   if (distance <= alarm.radius) {
+      //     send_message("Достигли точки назначения! ${alarm.destination}");
+      //     FlutterForegroundTask.wakeUpScreen();
+      //     alarm.isActive = false;
+      //     alarm.updateAlarm();
+      //     should_update_targets = true;
+      //     uf.callRingtone();
+      //     Future.delayed(Duration(seconds: 10))
+      //         .then((value) => uf.stopMelody());
+      //     break;
+      //   }
+      //   // send_message(
+      //   //     '${alarm.destination}, оставшееся расстояние - ${distance.round()}');
+      // }
+
       // вызывается после срабатывания одного из будильников, для пересортировки
-      if (should_update_targets) {
-        targets = await getListOfAlarms(targets);
-        should_update_targets = false;
-      }
+      // if (should_update_targets) {
+      //   targets = await getListOfAlarms(targets);
+      //   should_update_targets = false;
+      // }
     });
   }
 
@@ -149,6 +177,7 @@ class _MyAppState extends State<MyApp> {
         if (message is int && message == 0) {
           send_message("Stopping service cause length == 0");
           await stopForegroundTask();
+          initState();
         }
       });
       return true;
@@ -186,17 +215,10 @@ class _MyAppState extends State<MyApp> {
   }
 
   void getCurrentPermission() async {
-    if (await Permission.locationAlways.request().isGranted) {
-      Position p = await Geolocator.getCurrentPosition();
-      setState(() {
-        isGranted = true;
-        position = p;
-      });
-    } else {
-      setState(() {
-        isGranted = false;
-      });
-    }
+    bool x = await Permission.locationAlways.isGranted;
+    setState(() {
+      isGranted = x;
+    });
   }
 
   @override
@@ -212,11 +234,20 @@ class _MyAppState extends State<MyApp> {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: WithForegroundTask(
-          child: AlarmListScreen(
-        onStart: startForegroundTask,
-        onStop: stopForegroundTask,
-      )),
+      routes: <String, WidgetBuilder>{
+        "/main": (BuildContext context) => WithForegroundTask(
+                child: AlarmListScreen(
+              onStart: startForegroundTask,
+              onStop: stopForegroundTask,
+            ))
+      },
+      home: !isGranted
+          ? GetPermissionsPage()
+          : WithForegroundTask(
+              child: AlarmListScreen(
+              onStart: startForegroundTask,
+              onStop: stopForegroundTask,
+            )),
     );
   }
 }

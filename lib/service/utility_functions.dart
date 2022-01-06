@@ -74,6 +74,11 @@ void callRingtone() {
   );
 }
 
+void stopMelody() async {
+  await Future.delayed(Duration(seconds: 2));
+  FlutterRingtonePlayer.stop();
+}
+
 void showBlockModalWindow(BuildContext context, String msg,
     [Function? submit = null, Function? skip = null, bool isClosable = true]) {
   Navigator.push(
@@ -85,8 +90,8 @@ void showBlockModalWindow(BuildContext context, String msg,
           pageBuilder: (_, __, ___) {
             return InfoWidget(
               msg: msg,
-              submit: submit,
-              skip: skip,
+              mainbutton: submit,
+              secondbutton: skip,
               isClosable: isClosable,
             );
           }));

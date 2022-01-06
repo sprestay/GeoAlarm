@@ -47,4 +47,11 @@ abstract class AppFontStyle {
     fontWeight: FontWeight.w400,
     color: Color(0xFF8D8D8D),
   );
+
+  static const TextStyle big_message = TextStyle(
+    fontSize: 18,
+    fontWeight: FontWeight.w600,
+    fontFamily: "Inter",
+    color: Color(0xFF8D8D8D),
+  );
 }

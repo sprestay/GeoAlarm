@@ -3,18 +3,19 @@ import 'package:ionicons/ionicons.dart';
 import '../widgets/MainButton.dart';
 import '../service/globals.dart' as globals;
 import '../styles/fonts.dart';
+import 'dart:ui' as ui;
 
 class InfoWidget extends StatefulWidget {
   late String msg;
-  Function? skip;
-  Function? submit;
+  Function? secondbutton;
+  Function? mainbutton;
   late bool isClosable;
 
   InfoWidget(
       {Key? key,
       required this.msg,
-      this.skip,
-      this.submit,
+      this.secondbutton,
+      this.mainbutton,
       this.isClosable = true})
       : super(key: key);
 
@@ -23,14 +24,42 @@ class InfoWidget extends StatefulWidget {
 }
 
 class _InfoWidgetState extends State<InfoWidget> {
+  double calculateHeight(double width) {
+    TextPainter textPainter = TextPainter()
+      ..text =
+          TextSpan(text: widget.msg, style: AppFontStyle.inter_regular_16_black)
+      ..textDirection = TextDirection.ltr
+      ..layout(minWidth: 0, maxWidth: width);
+    double text_height = textPainter.size.height;
+    if (widget.mainbutton != null || widget.secondbutton != null) {
+      text_height += 56 + 20;
+    }
+    if (widget.mainbutton != null && widget.secondbutton != null) {
+      text_height += 56;
+    }
+    if (widget.isClosable) {
+      text_height += 40;
+    }
+    return text_height;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Padding(
-        padding: EdgeInsets.fromLTRB(
-            MediaQuery.of(context).size.width * 0.05,
-            MediaQuery.of(context).size.height * 0.3,
-            MediaQuery.of(context).size.width * 0.05,
-            MediaQuery.of(context).size.width * 0.4),
+    return Container(
+        padding: EdgeInsets.only(
+          left: MediaQuery.of(context).size.width * 0.05,
+          right: MediaQuery.of(context).size.width * 0.05,
+          top: (MediaQuery.of(context).size.height -
+                  calculateHeight(MediaQuery.of(context).size.width *
+                      0.9 *
+                      globals.most_element_width)) /
+              2,
+          bottom: (MediaQuery.of(context).size.height -
+                  calculateHeight(MediaQuery.of(context).size.width *
+                      0.9 *
+                      globals.most_element_width)) /
+              2,
+        ),
         child: Material(
           elevation: 10,
           shape: RoundedRectangleBorder(
@@ -39,6 +68,7 @@ class _InfoWidgetState extends State<InfoWidget> {
           color: Colors.white,
           child: Container(
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 widget.isClosable
                     ? Row(
@@ -59,9 +89,6 @@ class _InfoWidgetState extends State<InfoWidget> {
                         ],
                       )
                     : Container(),
-                SizedBox(
-                  height: 20,
-                ),
                 Expanded(
                   child: Container(
                       margin: EdgeInsets.symmetric(horizontal: 15),
@@ -75,33 +102,35 @@ class _InfoWidgetState extends State<InfoWidget> {
                         ),
                       ))),
                 ),
-                SizedBox(
-                  height: 10,
+                Container(
+                  margin: EdgeInsets.symmetric(vertical: 10),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      widget.mainbutton != null
+                          ? MainButton(
+                              callback: () {
+                                if (widget.mainbutton != null)
+                                  widget.mainbutton!();
+                                Navigator.pop(context);
+                              },
+                              width: MediaQuery.of(context).size.width *
+                                  0.9 *
+                                  globals.most_element_width,
+                              text: "подтвердить",
+                            )
+                          : Container(),
+                      widget.secondbutton != null
+                          ? TextButton(
+                              onPressed: () {
+                                if (widget.secondbutton != null)
+                                  widget.secondbutton!();
+                              },
+                              child: Text("ПРОПУСТИТЬ"))
+                          : Container()
+                    ],
+                  ),
                 ),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    widget.submit != null
-                        ? MainButton(
-                            callback: () {
-                              if (widget.submit != null) widget.submit!();
-                              Navigator.pop(context);
-                            },
-                            width: MediaQuery.of(context).size.width *
-                                0.9 *
-                                globals.most_element_width,
-                            text: "подтвердить",
-                          )
-                        : Container(),
-                    widget.skip != null
-                        ? TextButton(
-                            onPressed: () {
-                              if (widget.skip != null) widget.skip!();
-                            },
-                            child: Text("ПРОПУСТИТЬ"))
-                        : Container()
-                  ],
-                )
               ],
             ),
           ),

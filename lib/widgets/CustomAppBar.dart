@@ -8,14 +8,14 @@ import 'package:ionicons/ionicons.dart';
 class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
   late String title;
   late bool allow_backstep;
-  late bool show_info;
+  Function? show_info;
   Function? backstep_function;
   CustomAppBar(
       {Key? key,
       this.title = '',
       this.allow_backstep = true,
       this.backstep_function,
-      this.show_info = false})
+      this.show_info = null})
       : preferredSize = Size.fromHeight(kToolbarHeight),
         super(key: key);
 
@@ -54,7 +54,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
             )
           : Container(),
       actions: [
-        widget.show_info
+        widget.show_info != null
             ? Container(
                 margin: EdgeInsets.symmetric(horizontal: 20),
                 child: CircularButton(
@@ -65,7 +65,9 @@ class _CustomAppBarState extends State<CustomAppBar> {
                     color: Colors.white,
                     size: 50,
                   ),
-                  callback: () {},
+                  callback: () {
+                    widget.show_info!();
+                  },
                 ))
             : Container(),
       ],

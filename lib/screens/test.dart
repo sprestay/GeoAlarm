@@ -38,8 +38,8 @@ class _TestPageState extends State<TestPage> {
                           pageBuilder: (_, __, ___) {
                             return InfoWidget(
                               msg: InfoMessages.geolocation_is_forbidden,
-                              submit: () {},
-                              skip: () {},
+                              mainbutton: () {},
+                              secondbutton: () {},
                             );
                           }));
                 },

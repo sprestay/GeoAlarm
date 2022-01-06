@@ -15,6 +15,7 @@ import '../service/utility_functions.dart' as uf;
 import '../widgets/CustomSearchField.dart';
 import '../models/alarm.dart';
 import '../screens/alarm_list.dart';
+import '../styles/info_messages.dart';
 
 class CreateNewAlarm extends StatefulWidget {
   const CreateNewAlarm({Key? key}) : super(key: key);
@@ -84,11 +85,11 @@ class _CreateNewAlarmState extends State<CreateNewAlarm> {
 
       if (resp != null) {
         setState(() {
-          input_string = uf.upperfirst(resp!['address'][0]);
+          input_string = uf.upperfirst(resp!['custom_addr'][0]);
           marker_position =
               latLng.LatLng(resp['latlng'][0]['lat'], resp['latlng'][0]['lng']);
         });
-        _controller.text = uf.upperfirst(resp['address'][0]);
+        _controller.text = uf.upperfirst(resp['custom_addr'][0]);
         shoulMakeApiRequest = false;
         controller.move(marker_position, controller.zoom);
       }
@@ -98,7 +99,6 @@ class _CreateNewAlarmState extends State<CreateNewAlarm> {
       if (responses != null) {
         List<String> sug =
             responses.map((e) => e['description'].toString()).toList();
-        print("GOT ${sug.length}");
         setState(() {
           suggestions = sug;
         });
@@ -139,7 +139,8 @@ class _CreateNewAlarmState extends State<CreateNewAlarm> {
           backgroundColor: Colors.transparent,
           appBar: CustomAppBar(
             allow_backstep: true,
-            show_info: true,
+            show_info: () => uf.showBlockModalWindow(
+                context, InfoMessages.msg_on_create_alarm, null, null, true),
             backstep_function: secondStep
                 ? () {
                     setState(() {
@@ -290,10 +291,9 @@ class _CreateNewAlarmState extends State<CreateNewAlarm> {
                   isActive: false,
                 );
                 a.saveToDB();
-                // Navigator.pop(context);
                 // для того чтобы заного сработал initState
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => AlarmListScreen()));
+                Navigator.pushNamedAndRemoveUntil(
+                    context, '/', (route) => false);
               },
               text: "создать",
             ),

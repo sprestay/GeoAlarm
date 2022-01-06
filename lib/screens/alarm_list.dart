@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:geoalarm/screens/create_new_alarm.dart';
+import 'package:geoalarm/styles/fonts.dart';
 import 'package:geoalarm/styles/gradient.dart';
 import '../widgets/CustomAppBar.dart';
 import '../widgets/CircleButton.dart';
@@ -16,6 +17,8 @@ import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import '../service/utility_functions.dart' as uf;
 import '../styles/info_messages.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:android_intent/android_intent.dart';
 
 class AlarmListScreen extends StatefulWidget {
   Function? onStart;
@@ -38,6 +41,11 @@ class _AlarmListScreenState extends State<AlarmListScreen> {
   void initState() {
     extractFromDB();
     checkPermissions();
+
+    /// вызов логики, после того, как отработает рендер
+    SchedulerBinding.instance?.addPostFrameCallback((_) {
+      // triggerModalWindows(context);
+    });
   }
 
   void checkPermissions() async {
@@ -74,10 +82,23 @@ class _AlarmListScreenState extends State<AlarmListScreen> {
 
   void triggerModalWindows(BuildContext context) async {
     await Future.delayed(Duration(seconds: 1));
-    if (!geoIsGranted) {
-      uf.showBlockModalWindow(
-          context, InfoMessages.geolocation_is_forbidden, null, null, false);
-    }
+    // if (!geoIsGranted) {
+    //   Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+
+    //   ///
+    //   /// После выхода из настроек модальное окно закрывалось, и можно было пользоваться
+    //   /// приложением без доступа к геолокации
+    //   ///
+    //   uf.showBlockModalWindow(context, InfoMessages.geolocation_is_forbidden,
+    //       () async {
+    //     AndroidIntent intent = AndroidIntent(
+    //       action: "android.settings.APPLICATION_DETAILS_SETTINGS",
+    //       package: "com.example.geoalarm",
+    //       data: "package:com.example.geoalarm",
+    //     );
+    //     intent.launch();
+    //   }, null, false);
+    // }
 
     if (!ignoringBattery) {
       uf.showBlockModalWindow(
@@ -91,11 +112,13 @@ class _AlarmListScreenState extends State<AlarmListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    triggerModalWindows(context);
     return WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
-          appBar: CustomAppBar(allow_backstep: false, show_info: true),
+          appBar: CustomAppBar(
+              allow_backstep: false,
+              show_info: () => uf.showBlockModalWindow(
+                  context, InfoMessages.msg_on_alarm_list, null, null, true)),
           body: SingleChildScrollView(
             child: Center(
               child: Container(
@@ -110,6 +133,7 @@ class _AlarmListScreenState extends State<AlarmListScreen> {
                             primary: false,
                             itemBuilder: (BuildContext context, int index) {
                               return AlarmItem(
+                                key: Key(alarms[index].id),
                                 alarm: alarms[index],
                                 callback: () {
                                   if (widget.onStart != null) {
@@ -136,7 +160,20 @@ class _AlarmListScreenState extends State<AlarmListScreen> {
                                       ),
                                     )),
                             itemCount: alarms.length)
-                        : Text("Нет сохраненных будильников"),
+                        : Text(
+                            "Нет сохраненных будильников",
+                            style: AppFontStyle.big_message,
+                          ),
+                    // TextButton(
+                    //     onPressed: () {
+                    //       uf.callRingtone();
+                    //     },
+                    //     child: Text("PlayMelody")),
+                    // TextButton(
+                    //     onPressed: () {
+                    //       uf.stopMelody();
+                    //     },
+                    //     child: Text("StopMelody"))
                   ],
                 ),
               ),
