@@ -17,6 +17,7 @@ import '../models/alarm.dart';
 import '../screens/alarm_list.dart';
 import '../styles/info_messages.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:address_search_field/address_search_field.dart';
 
 class CreateNewAlarm extends StatefulWidget {
   const CreateNewAlarm({Key? key}) : super(key: key);
@@ -42,6 +43,11 @@ class _CreateNewAlarmState extends State<CreateNewAlarm> {
 
   RefreshController _refreshController =
       RefreshController(initialRefresh: true);
+  GeoMethods geoMethods = GeoMethods(
+    googleApiKey: BackEnd().google_api_key,
+    language: 'ru',
+  );
+  TextEditingController modal_controller = TextEditingController();
 
   @override
   void initState() {
@@ -122,6 +128,35 @@ class _CreateNewAlarmState extends State<CreateNewAlarm> {
 
   void zoomOut() {
     controller.move(marker_position, controller.zoom - 1);
+  }
+
+  void modalWindowToFindAddress(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AddressSearchBuilder.deft(
+        geoMethods: geoMethods,
+        controller: modal_controller,
+        builder: AddressDialogBuilder(
+          color: Color(0xFF4FC28F),
+          backgroundColor: Color(0xFFF6F5F5),
+          hintText: "Куда направляетесь?",
+          cancelText: "Закрыть",
+          continueText: "Подтвердить",
+          useButtons: false,
+        ),
+        onDone: (address) {
+          if (address.coords != null) {
+            setState(() {
+              marker_position = latLng.LatLng(
+                  address.coords!.latitude, address.coords!.longitude);
+              input_string = uf.upperfirst(address.reference ?? "");
+            });
+            controller.move(marker_position, controller.zoom);
+            _controller.text = input_string;
+          }
+        },
+      ),
+    );
   }
 
   void getUserPosition() async {
@@ -347,14 +382,24 @@ class _CreateNewAlarmState extends State<CreateNewAlarm> {
             SizedBox(height: 26),
             Stack(
               children: [
-                CustomSearchField(
-                  disabled: false,
-                  suggestions: suggestions,
+                // CustomSearchField(
+                //   disabled: false,
+                //   suggestions: suggestions,
+                //   labeltextbold: "Точка назначения",
+                //   background_color: Colors.white,
+                //   controller: _controller,
+                //   onSelected: (String s) {
+                //     apiRequest({"type": "geo", "value": s});
+                //   },
+                // ),
+                CustomInputField(
                   labeltextbold: "Точка назначения",
                   background_color: Colors.white,
-                  controller: _controller,
-                  onSelected: (String s) {
-                    apiRequest({"type": "geo", "value": s});
+                  // controller: _controller,
+                  initialValue: input_string,
+                  key: Key(input_string),
+                  onTap: () {
+                    modalWindowToFindAddress(context);
                   },
                 ),
               ],

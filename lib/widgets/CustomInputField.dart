@@ -22,6 +22,7 @@ class CustomInputField extends StatelessWidget {
   List<TextInputFormatter>? formatters;
   TextEditingController? controller;
   Function? focus;
+  Function? onTap;
 
   CustomInputField(
       {this.initialValue,
@@ -41,6 +42,7 @@ class CustomInputField extends StatelessWidget {
       this.key,
       this.formatters,
       this.controller,
+      this.onTap,
       this.focus});
 
   @override
@@ -71,6 +73,11 @@ class CustomInputField extends StatelessWidget {
                 }
               },
               enabled: !readonly,
+              onTap: () {
+                if (onTap != null) {
+                  onTap!();
+                }
+              },
               maxLength: maxlength,
               keyboardType: keyboardType,
               inputFormatters: formatters == null ? [] : formatters,
