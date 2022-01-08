@@ -12,6 +12,7 @@ import '../service/globals.dart' as globals;
 import '../widgets/AlarmItem.dart';
 import '../service/foreground_service.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 /// для проверки разрешений
 import '../service/utility_functions.dart' as uf;
@@ -36,6 +37,8 @@ class _AlarmListScreenState extends State<AlarmListScreen> {
   List<Alarm> alarms = [];
   bool geoIsGranted = false;
   bool ignoringBattery = false;
+  RefreshController _refreshController =
+      RefreshController(initialRefresh: true);
 
   @override
   void initState() {
@@ -46,6 +49,11 @@ class _AlarmListScreenState extends State<AlarmListScreen> {
     SchedulerBinding.instance?.addPostFrameCallback((_) {
       // triggerModalWindows(context);
     });
+  }
+
+  void _onRefresh() async {
+    extractFromDB();
+    _refreshController.refreshCompleted();
   }
 
   void checkPermissions() async {
@@ -113,82 +121,89 @@ class _AlarmListScreenState extends State<AlarmListScreen> {
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      onWillPop: () async => false,
-      child: Scaffold(
-          appBar: CustomAppBar(
-              allow_backstep: false,
-              show_info: () => uf.showBlockModalWindow(
-                  context, InfoMessages.msg_on_alarm_list, null, null, true)),
-          body: SingleChildScrollView(
-            child: Center(
-              child: Container(
-                margin: EdgeInsets.symmetric(vertical: 30),
-                width: MediaQuery.of(context).size.width *
-                    globals.most_element_width,
-                child: Column(
-                  children: [
-                    alarms.length != 0
-                        ? ListView.separated(
-                            shrinkWrap: true,
-                            primary: false,
-                            itemBuilder: (BuildContext context, int index) {
-                              return AlarmItem(
-                                key: Key(alarms[index].id),
-                                alarm: alarms[index],
-                                callback: () {
-                                  if (widget.onStart != null) {
-                                    send_message("Calling update function");
-                                    widget.onStart!();
-                                  }
+        onWillPop: () async => false,
+        child: SmartRefresher(
+          controller: _refreshController,
+          enablePullDown: true,
+          onRefresh: _onRefresh,
+          child: Scaffold(
+              appBar: CustomAppBar(
+                  allow_backstep: false,
+                  show_info: () => uf.showBlockModalWindow(context,
+                      InfoMessages.msg_on_alarm_list, null, null, true)),
+              body: SingleChildScrollView(
+                child: Center(
+                  child: Container(
+                    margin: EdgeInsets.symmetric(vertical: 30),
+                    width: MediaQuery.of(context).size.width *
+                        globals.most_element_width,
+                    child: Column(
+                      children: [
+                        alarms.length != 0
+                            ? ListView.separated(
+                                shrinkWrap: true,
+                                primary: false,
+                                itemBuilder: (BuildContext context, int index) {
+                                  return AlarmItem(
+                                    key: Key(alarms[index].id),
+                                    alarm: alarms[index],
+                                    callback: () {
+                                      if (widget.onStart != null) {
+                                        send_message("Calling update function");
+                                        widget.onStart!();
+                                      }
+                                    },
+                                    onDelete: () {
+                                      List<Alarm> tmp = alarms;
+                                      tmp.removeAt(index);
+                                      setState(() {
+                                        alarms = tmp;
+                                      });
+                                    },
+                                  );
                                 },
-                                onDelete: () {
-                                  List<Alarm> tmp = alarms;
-                                  tmp.removeAt(index);
-                                  setState(() {
-                                    alarms = tmp;
-                                  });
-                                },
-                              );
-                            },
-                            separatorBuilder:
-                                (BuildContext context, int index) => SizedBox(
-                                    height: 10,
-                                    child: Center(
-                                      child: Container(
-                                        height: 0.2,
-                                        color: Colors.black,
-                                      ),
-                                    )),
-                            itemCount: alarms.length)
-                        : Text(
-                            "Нет сохраненных будильников",
-                            style: AppFontStyle.big_message,
-                          ),
-                    // TextButton(
-                    //     onPressed: () {
-                    //       uf.callRingtone();
-                    //     },
-                    //     child: Text("PlayMelody")),
-                    // TextButton(
-                    //     onPressed: () {
-                    //       uf.stopMelody();
-                    //     },
-                    //     child: Text("StopMelody"))
-                  ],
+                                separatorBuilder:
+                                    (BuildContext context, int index) =>
+                                        SizedBox(
+                                            height: 10,
+                                            child: Center(
+                                              child: Container(
+                                                height: 0.2,
+                                                color: Colors.black,
+                                              ),
+                                            )),
+                                itemCount: alarms.length)
+                            : Text(
+                                "Нет сохраненных будильников",
+                                style: AppFontStyle.big_message,
+                              ),
+                        // TextButton(
+                        //     onPressed: () {
+                        //       uf.callRingtone();
+                        //     },
+                        //     child: Text("PlayMelody")),
+                        // TextButton(
+                        //     onPressed: () {
+                        //       uf.stopMelody();
+                        //     },
+                        //     child: Text("StopMelody"))
+                      ],
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ),
-          floatingActionButton: FloatingActionButton(
-            child: AppIcons.new_alarm,
-            onPressed: () async {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => CreateNewAlarm()));
-            },
-            backgroundColor: Color(0xFF4FC28F),
-          ),
-          floatingActionButtonLocation:
-              FloatingActionButtonLocation.centerFloat),
-    );
+              floatingActionButton: FloatingActionButton(
+                child: AppIcons.new_alarm,
+                onPressed: () async {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => CreateNewAlarm()));
+                },
+                backgroundColor: Color(0xFF4FC28F),
+              ),
+              floatingActionButtonLocation:
+                  FloatingActionButtonLocation.centerFloat),
+        ));
   }
 }

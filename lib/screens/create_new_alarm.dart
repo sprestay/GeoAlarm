@@ -16,6 +16,7 @@ import '../widgets/CustomSearchField.dart';
 import '../models/alarm.dart';
 import '../screens/alarm_list.dart';
 import '../styles/info_messages.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class CreateNewAlarm extends StatefulWidget {
   const CreateNewAlarm({Key? key}) : super(key: key);
@@ -30,7 +31,7 @@ class _CreateNewAlarmState extends State<CreateNewAlarm> {
   late MapOptions options;
   String input_string = '';
   bool secondStep = false;
-  double sliderValue = 10;
+  double sliderValue = 1;
   final TextEditingController _controller = TextEditingController();
   List<String> suggestions = [];
   bool shoulMakeApiRequest = true; // костыль
@@ -39,9 +40,14 @@ class _CreateNewAlarmState extends State<CreateNewAlarm> {
   /// и когда значение записывается после api запроса на бэк.
   /// Чтобы избежать запроса predictions, при подстановке значения с бэка - используем этот костыль
 
+  RefreshController _refreshController =
+      RefreshController(initialRefresh: true);
+
   @override
   void initState() {
     marker_position = latLng.LatLng(59.929479, 30.321312);
+    _controller.text = ""; // а надо ли?
+    input_string = '';
     _controller.addListener(() {
       final String text = uf.upperfirst(_controller.text);
       if (shoulMakeApiRequest) {
@@ -51,9 +57,8 @@ class _CreateNewAlarmState extends State<CreateNewAlarm> {
       }
     });
     options = MapOptions(
-        interactiveFlags: secondStep ? 0 : 1, // карта неактивна на вотром шаге
         center: marker_position,
-        zoom: 13.0,
+        zoom: 15.0,
         maxZoom: 17,
         minZoom: 7,
         onMapCreated: (MapController _contr) {
@@ -71,6 +76,11 @@ class _CreateNewAlarmState extends State<CreateNewAlarm> {
     getUserPosition();
   }
 
+  void _onRefresh() async {
+    initState();
+    _refreshController.refreshCompleted();
+  }
+
   void apiRequest(Map<String, dynamic> req) async {
     Map<String, dynamic>? resp;
     if (req['type'] == "geo") {
@@ -86,8 +96,8 @@ class _CreateNewAlarmState extends State<CreateNewAlarm> {
       if (resp != null) {
         setState(() {
           input_string = uf.upperfirst(resp!['custom_addr'][0]);
-          marker_position =
-              latLng.LatLng(resp['latlng'][0]['lat'], resp['latlng'][0]['lng']);
+          marker_position = latLng.LatLng(resp['latlng'][0]['lat'] as double,
+              resp['latlng'][0]['lng'] as double);
         });
         _controller.text = uf.upperfirst(resp['custom_addr'][0]);
         shoulMakeApiRequest = false;
@@ -132,72 +142,80 @@ class _CreateNewAlarmState extends State<CreateNewAlarm> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        body: Stack(children: [
-      Scaffold(
-          extendBodyBehindAppBar: true,
-          backgroundColor: Colors.transparent,
-          appBar: CustomAppBar(
-            allow_backstep: true,
-            show_info: () => uf.showBlockModalWindow(
-                context, InfoMessages.msg_on_create_alarm, null, null, true),
-            backstep_function: secondStep
-                ? () {
-                    setState(() {
-                      secondStep = false;
-                    });
-                  }
-                : null,
-          ),
-          body: Container(
-              height: MediaQuery.of(context).size.height,
-              width: MediaQuery.of(context).size.width,
-              child: Stack(
-                  alignment: AlignmentDirectional.bottomCenter,
-                  children: [
-                    FlutterMap(
-                      options: options,
-                      mapController: controller,
-                      layers: [
-                        TileLayerOptions(
-                          urlTemplate:
-                              "https://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}{r}.png",
-                          subdomains: ['a', 'b', 'c'],
-                        ),
-                        MarkerLayerOptions(
-                          markers: [
-                            Marker(
-                              width: 50.0,
-                              height: 50.0,
-                              point: marker_position,
-                              builder: (ctx) => Image.asset(
-                                "marker.png",
-                                width: 20,
-                              ),
+    return SmartRefresher(
+      controller: _refreshController,
+      enablePullDown: true,
+      onRefresh: _onRefresh,
+      child: Scaffold(
+          body: Stack(children: [
+        Scaffold(
+            extendBodyBehindAppBar: true,
+            backgroundColor: Colors.transparent,
+            appBar: CustomAppBar(
+              allow_backstep: true,
+              show_info: () => uf.showBlockModalWindow(
+                  context, InfoMessages.msg_on_create_alarm, null, null, true),
+              backstep_function: secondStep
+                  ? () {
+                      setState(() {
+                        secondStep = false;
+                      });
+                    }
+                  : null,
+            ),
+            body: Container(
+                height: MediaQuery.of(context).size.height,
+                width: MediaQuery.of(context).size.width,
+                child: Stack(
+                    alignment: AlignmentDirectional.bottomCenter,
+                    children: [
+                      IgnorePointer(
+                        ignoring: secondStep,
+                        child: FlutterMap(
+                          options: options,
+                          mapController: controller,
+                          layers: [
+                            TileLayerOptions(
+                              urlTemplate:
+                                  "https://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}{r}.png",
+                              subdomains: ['a', 'b', 'c'],
                             ),
+                            MarkerLayerOptions(
+                              markers: [
+                                Marker(
+                                  width: 50.0,
+                                  height: 50.0,
+                                  point: marker_position,
+                                  builder: (ctx) => Image.asset(
+                                    "marker.png",
+                                    width: 20,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            CircleLayerOptions(circles: [
+                              CircleMarker(
+                                useRadiusInMeter: true,
+                                point: marker_position,
+                                color: Color(0xFF0EA64F).withOpacity(0.2),
+                                radius: secondStep
+                                    ? uf.sliderValueToDistance(sliderValue)
+                                    : 0, // чтобы круг отображался только при задании радиуса
+                              )
+                            ]),
                           ],
                         ),
-                        CircleLayerOptions(circles: [
-                          CircleMarker(
-                            useRadiusInMeter: true,
-                            point: marker_position,
-                            color: Color(0xFF0EA64F).withOpacity(0.2),
-                            radius: secondStep
-                                ? uf.sliderValueToDistance(sliderValue)
-                                : 0, // чтобы круг отображался только при задании радиуса
-                          )
-                        ]),
-                      ],
-                    ),
-                    secondStep ? blockDetermineRadius() : blockFindAddress(),
-                    secondStep
-                        ? Container()
-                        : Positioned(
-                            right: 30,
-                            bottom: 250,
-                            child: mapControllButtons()),
-                  ])))
-    ]));
+                      ),
+                      secondStep ? blockDetermineRadius() : blockFindAddress(),
+                      secondStep
+                          ? Container()
+                          : Positioned(
+                              right: 30,
+                              bottom: 250,
+                              child: mapControllButtons()),
+                    ])))
+      ])),
+    );
   }
 
   Widget mapControllButtons() {
@@ -254,7 +272,7 @@ class _CreateNewAlarmState extends State<CreateNewAlarm> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Text(
-                    "Радиус для срабатывания: ${(uf.sliderValueToDistance(sliderValue) / 1000).toStringAsFixed(2)} км",
+                    "Радиус для срабатывания: ${uf.metersToDistanceString(uf.sliderValueToDistance(sliderValue))}",
                     style: AppFontStyle.inter_semibold_12_black,
                   ),
                 ],
@@ -263,12 +281,18 @@ class _CreateNewAlarmState extends State<CreateNewAlarm> {
             SizedBox(
               height: 10,
             ),
+
+            /// минимальный радиус - 50м
+            /// максимальный - 100 км
+            /// слайдер должен начинаться с 1 (для использовании в квадратичной фукнции)
+            /// 50 м - 1 шаг
+            /// 100 км - 100 000 м - 2000 шагов
             Slider(
                 activeColor: Color(0xFF4FC28F),
                 inactiveColor: Color(0x4D4FC28F),
                 value: sliderValue,
                 min: 1,
-                max: 100,
+                max: 2000,
                 onChanged: (double value) {
                   setState(() {
                     sliderValue = value;
@@ -324,6 +348,7 @@ class _CreateNewAlarmState extends State<CreateNewAlarm> {
             Stack(
               children: [
                 CustomSearchField(
+                  disabled: false,
                   suggestions: suggestions,
                   labeltextbold: "Точка назначения",
                   background_color: Colors.white,
@@ -338,14 +363,16 @@ class _CreateNewAlarmState extends State<CreateNewAlarm> {
               height: 20,
             ),
             MainButton(
-              disabled: input_string.isEmpty,
-              active: input_string.isNotEmpty,
+              disabled: input_string.trim().length == 0,
+              active: input_string.trim().length > 0,
               text: "далее",
               callback: () {
                 setState(() {
                   input_string = _controller.text;
                   secondStep = true;
+                  sliderValue = uf.sliderValueFromZoom(controller.zoom);
                 });
+                print(uf.sliderValueFromZoom(controller.zoom));
               },
             ),
             SizedBox(height: 34),

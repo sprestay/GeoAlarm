@@ -10,6 +10,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import './styles/info_messages.dart';
 import './screens/get_permissions.dart';
+import 'package:flutter/services.dart';
 
 /// для foreground services
 import './models/alarm.dart';
@@ -28,7 +29,11 @@ void send_message(String msg) async {
 }
 
 void main() {
-  runApp(MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
+      .then((_) {
+    runApp(MyApp());
+  });
 }
 
 void startCallback() async {

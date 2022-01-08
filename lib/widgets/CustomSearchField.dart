@@ -13,6 +13,7 @@ class CustomSearchField extends StatelessWidget {
   late double height;
   Function? onSelected;
   TextEditingController? controller;
+  bool disabled;
 
   CustomSearchField({
     Key? key,
@@ -25,6 +26,7 @@ class CustomSearchField extends StatelessWidget {
     this.background_color = const Color(0xFFF3F3F3),
     this.controller,
     this.onSelected,
+    this.disabled = false,
   }) : super(key: key);
 
   @override
@@ -32,24 +34,27 @@ class CustomSearchField extends StatelessWidget {
     return Stack(
       children: [
         Container(
-          child: SearchField(
-            suggestions: suggestions,
-            searchInputDecoration: InputDecoration(
-              contentPadding: EdgeInsets.only(top: 30, left: 10, right: 10),
-              hintText: hinttext,
-              border: InputBorder.none,
+          child: IgnorePointer(
+            ignoring: disabled,
+            child: SearchField(
+              suggestions: suggestions,
+              searchInputDecoration: InputDecoration(
+                contentPadding: EdgeInsets.only(top: 30, left: 10, right: 10),
+                hintText: hinttext,
+                border: InputBorder.none,
+              ),
+              suggestionItemDecoration: BoxDecoration(),
+              itemHeight: 40,
+              hasOverlay: true,
+              suggestionStyle: AppFontStyle.inter_regular_16_black,
+              searchStyle: AppFontStyle.inter_regular_16_black,
+              marginColor: Color(0x4D4FC28F),
+              controller: controller,
+              onTap: (String? text) {
+                if (onSelected != null) onSelected!(text);
+              },
+              suggestionAction: SuggestionAction.unfocus,
             ),
-            suggestionItemDecoration: BoxDecoration(),
-            itemHeight: 40,
-            hasOverlay: true,
-            suggestionStyle: AppFontStyle.inter_regular_16_black,
-            searchStyle: AppFontStyle.inter_regular_16_black,
-            marginColor: Color(0x4D4FC28F),
-            controller: controller,
-            onTap: (String? text) {
-              if (onSelected != null) onSelected!(text);
-            },
-            suggestionAction: SuggestionAction.unfocus,
           ),
           height: height,
           width: width == null

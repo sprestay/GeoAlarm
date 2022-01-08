@@ -8,6 +8,7 @@ import 'package:android_intent/android_intent.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import '../service/foreground_service.dart';
+import 'package:flutter/foundation.dart';
 
 class GetPermissionsPage extends StatefulWidget {
   const GetPermissionsPage({Key? key}) : super(key: key);
@@ -24,9 +25,11 @@ class _GetPermissionsPageState extends State<GetPermissionsPage>
   RefreshController _refreshController =
       RefreshController(initialRefresh: false);
 
+  late AppLifecycleState _notification;
+
   @override
   void initState() {
-    checkStep();
+    WidgetsBinding.instance!.addObserver(this);
 
     /// Вызов логики, когда завершится render
     SchedulerBinding.instance?.addPostFrameCallback((_) {
@@ -34,12 +37,12 @@ class _GetPermissionsPageState extends State<GetPermissionsPage>
     });
   }
 
-  // @override
-  // void didChangeAppLifecycleState(AppLifecycleState state) {
-  //   print("HERE");
-  //   print(state);
-  //   initState();
-  // }
+  @override
+  void dispose() {
+    WidgetsBinding.instance!.removeObserver(this);
+    super.dispose();
+  }
+
   void _onRefresh() async {
     if (await Permission.locationAlways.isGranted) {
       Navigator.pushNamed(context, '/main');
@@ -47,19 +50,19 @@ class _GetPermissionsPageState extends State<GetPermissionsPage>
     _refreshController.refreshCompleted();
   }
 
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) async {
+    if (state == AppLifecycleState.resumed) {
+      if (await Permission.locationAlways.isGranted) {
+        Navigator.pushNamed(context, '/main');
+      }
+    }
+  }
+
   /// По умолчанию статус denied. shouldShowRequestRationale работает крайне непредсказуемо,
   /// совершенно не понятно, будет показан дефолтный запрос или нет
   ///
   /// shouldShowRequestRationale при первом запуске false, после обновления разрешений вручную - true
-
-  void checkStep() async {
-    PermissionWithService per = await Permission.locationAlways;
-    // bool s = await per.shouldShowRequestRationale;
-    bool g = await per.isGranted;
-    setState(() {
-      isGranted = g;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {

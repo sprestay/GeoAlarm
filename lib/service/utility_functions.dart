@@ -3,17 +3,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import '../widgets/InfoWidget.dart';
 
-// val 1-100
-// distance 1-100
+const num function_pow = 2.7;
+
 double sliderValueToDistance(double val) {
-  val = val / 100;
-  val = pow(val as num, 2.7) as double;
-  val = (1 + (val * 100)) > 100 ? 100 : (1 + (val * 100));
-  return val * 1000; // в метрах
+  val = val / 2000; //  делим на maxSlider
+  val = pow(val as num, function_pow) as double;
+  // val = (1 + (val * 100)) > 100 ? 100 : (1 + (val * 100));
+  val = (val * 2000) >= 2000 ? 100000 : ((1 + (val * 2000)) * 50);
+  // return val * 1000; // в метрах
+  return val;
 }
 
 Map<double, List<double>> zoomTable = {
-  13: [0, 1750],
+  17: [0, 130],
+  16: [130, 260],
+  15: [260, 520],
+  14: [520, 1050],
+  13: [1050, 1750],
   12: [1750, 3500],
   11: [3500, 7000],
   10: [7000, 13750],
@@ -31,6 +37,25 @@ double determineZoomLevel(double val) {
     }
   }
   return 7;
+}
+
+double sliderValueFromZoom(double zoomLevel) {
+  if (zoomTable[zoomLevel] == null) {
+    return 1000;
+  }
+  List<double> range = zoomTable[zoomLevel]!;
+  double distance = (range[0] + range[1]) / 2 / 50;
+  num val_for_log = ((distance - 1) / 2000);
+  val_for_log = pow(val_for_log, 1 / function_pow);
+  return val_for_log * 2000;
+}
+
+String metersToDistanceString(double meters) {
+  if (meters < 1000) {
+    return "${meters.round()} метров";
+  } else {
+    return "${(meters / 1000).toStringAsFixed(1)} километров";
+  }
 }
 
 String upperfirst(String text) {
