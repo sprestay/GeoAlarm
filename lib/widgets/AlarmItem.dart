@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:geoalarm/main.dart';
 import '../styles/fonts.dart';
-import '../styles/gradient.dart';
 import '../models/alarm.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:restart_app/restart_app.dart';
+import '../service/utility_functions.dart' as uf;
 
 class AlarmItem extends StatefulWidget {
   late Alarm alarm;
@@ -49,6 +48,7 @@ class _AlarmItemState extends State<AlarmItem> {
               await widget.callback!();
             }
             if (!selected) {
+              uf.stopMelody();
               Restart.restartApp();
             }
           }),

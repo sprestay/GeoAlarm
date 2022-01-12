@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import '../widgets/InfoWidget.dart';
+import 'package:vibration/vibration.dart';
 
 const num function_pow = 2.7;
 
@@ -89,18 +90,23 @@ String customAddressFormatter(List adresses) {
   return upperfirst(result.join(', '));
 }
 
-void callRingtone() {
+void callRingtone() async {
   FlutterRingtonePlayer.play(
     android: AndroidSounds.alarm,
     ios: IosSounds.alarm,
     looping: true, // Android only - API >= 28
-    volume: 100, // Android only - API >= 28
+    volume: double.infinity, // Android only - API >= 28
     asAlarm: true, // Android only - all APIs
   );
+  if (await Vibration.hasAmplitudeControl()) {
+    Vibration.vibrate(amplitude: 255, duration: 10000000);
+  } else if (await Vibration.hasVibrator()) {
+      Vibration.vibrate(duration: 10000000);
+  }
 }
 
 void stopMelody() async {
-  await Future.delayed(Duration(seconds: 2));
+  Vibration.cancel();
   FlutterRingtonePlayer.stop();
 }
 
