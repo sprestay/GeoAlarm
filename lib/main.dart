@@ -76,6 +76,9 @@ class TrackingTask extends TaskHandler {
 
     /// Если нет будильников - то дропаем сервис
     sendPort?.send(targets.length);
+    if (targets.length == 0) { // костыль. сервис не останавливается после перезагрузки
+      await FlutterForegroundTask.stopService();
+    }
 
     final positionStream = Geolocator.getPositionStream(
         locationSettings: LocationSettings(distanceFilter: 30));
@@ -91,43 +94,13 @@ class TrackingTask extends TaskHandler {
         }
       }).toList();
 
-      done_alarms.forEach((element) {
-        element.isActive = false;
-        element.updateAlarm();
-      });
 
       if (done_alarms.length > 0) {
         send_message("Достигли пункта назначения!");
         FlutterForegroundTask.wakeUpScreen();
         uf.callRingtone();
-        Future.delayed(Duration(seconds: 10)).then((value) => uf.stopMelody());
         startCallback();
       }
-
-      // bool should_update_targets = false;
-      // for (Alarm alarm in targets) {
-      //   double distance = Geolocator.distanceBetween(
-      //       event.latitude, event.longitude, alarm.latitude, alarm.longitude);
-      //   if (distance <= alarm.radius) {
-      //     send_message("Достигли точки назначения! ${alarm.destination}");
-      //     FlutterForegroundTask.wakeUpScreen();
-      //     alarm.isActive = false;
-      //     alarm.updateAlarm();
-      //     should_update_targets = true;
-      //     uf.callRingtone();
-      //     Future.delayed(Duration(seconds: 10))
-      //         .then((value) => uf.stopMelody());
-      //     break;
-      //   }
-      //   // send_message(
-      //   //     '${alarm.destination}, оставшееся расстояние - ${distance.round()}');
-      // }
-
-      // вызывается после срабатывания одного из будильников, для пересортировки
-      // if (should_update_targets) {
-      //   targets = await getListOfAlarms(targets);
-      //   should_update_targets = false;
-      // }
     });
   }
 
@@ -177,14 +150,14 @@ class _MyAppState extends State<MyApp> {
     }
 
     if (receivePort != null) {
-      _receivePort = receivePort;
-      _receivePort?.listen((message) async {
-        if (message is int && message == 0) {
-          send_message("Stopping service cause length == 0");
-          await stopForegroundTask();
-          initState();
-        }
-      });
+      // _receivePort = receivePort;
+      // _receivePort?.listen((message) async {
+      //   if (message is int && message == 0) {
+      //     send_message("Stopping service cause length == 0");
+      //     await stopForegroundTask();
+      //     initState();
+      //   }
+      // });
       return true;
     }
     return false;

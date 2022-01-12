@@ -93,7 +93,7 @@ void callRingtone() {
   FlutterRingtonePlayer.play(
     android: AndroidSounds.alarm,
     ios: IosSounds.alarm,
-    looping: false, // Android only - API >= 28
+    looping: true, // Android only - API >= 28
     volume: 100, // Android only - API >= 28
     asAlarm: true, // Android only - all APIs
   );

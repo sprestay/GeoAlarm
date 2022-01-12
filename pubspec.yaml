@@ -48,7 +48,7 @@ dependencies:
   android_intent: ^2.0.2
   pull_to_refresh: ^2.0.0
   flutter_ringtone_player: ^3.1.1
-
+  restart_app: ^1.1.0
   address_search_field: ^4.0.1
 
 dev_dependencies:

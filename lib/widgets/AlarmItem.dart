@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:geoalarm/main.dart';
 import '../styles/fonts.dart';
 import '../styles/gradient.dart';
 import '../models/alarm.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:restart_app/restart_app.dart';
 
 class AlarmItem extends StatefulWidget {
   late Alarm alarm;
@@ -29,7 +31,6 @@ class _AlarmItemState extends State<AlarmItem> {
     return Slidable(
       key: Key(alarm.id),
       child: SwitchListTile(
-          // tileColor: Colors.yellow,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10.0),
           ),
@@ -39,13 +40,16 @@ class _AlarmItemState extends State<AlarmItem> {
           activeColor: Color(0xFF4FC28F),
           inactiveTrackColor: Color(0xFFE9E9E9),
           inactiveThumbColor: Color(0xFFC6C6C6),
-          onChanged: (bool selected) {
+          onChanged: (bool selected) async {
             setState(() {
               alarm.isActive = selected;
             });
             alarm.updateAlarm();
             if (widget.callback != null) {
-              widget.callback!();
+              await widget.callback!();
+            }
+            if (!selected) {
+              Restart.restartApp();
             }
           }),
       endActionPane: ActionPane(motion: ScrollMotion(), children: [
