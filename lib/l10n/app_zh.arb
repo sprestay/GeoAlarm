@@ -1,0 +1,37 @@
+{
+    "no_created_alarms": "没有保存的警报",
+
+    "msg_on_alarm_list": "地理闹钟。创建警报 - 为此，请在地图上设置您要去的地方。然后 定义半径 - 在距给定位置的距离处警报应该响起。为了确保警报正在运行，您可以使用通知（它应该不断显示）。",
+
+    "where_are_you_moving": "你要去哪里？",
+
+    "close": "关闭",
+
+    "submit": "确认",
+
+    "radius_to_detect": "驱动半径",
+
+    "destination_point": "目的地",
+
+    "next": "更远",
+
+    "create": "创建",
+
+    "msg_on_create_alarm": "在此屏幕上，您需要设置目的地。在地图上选择一个点，然后点击“下一步”确定 触发半径。 ",
+
+    "give_full_access": "授予访问权限",
+
+    "go_to_settings": "前往设置",
+
+    "geolocation_denied_on_permission_page": "如果没有对该位置的持续访问，该应用程序将无法工作。可以在设置中设置位置访问权限。转到应用程序设置，选择“权限”部分并给出 不断访问地理位置。",
+
+    "geolocation_is_needed": "该应用程序会检测您的位置并 当您到达时会发出哔哔声 给定的位置。需要访问工作 到地理位置。请提供。",
+
+    "delete": "删除",
+
+    "ondeleted": "移除",
+
+    "meters": "米",
+
+    "kilometers": "公里"
+}

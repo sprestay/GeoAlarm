@@ -18,7 +18,9 @@ import 'package:address_search_field/address_search_field.dart';
 import 'package:flutter/scheduler.dart';
 
 class CreateNewAlarm extends StatefulWidget {
-  const CreateNewAlarm({Key? key}) : super(key: key);
+  Function? callback;
+
+  CreateNewAlarm({Key? key, this.callback}) : super(key: key);
 
   @override
   _CreateNewAlarmState createState() => _CreateNewAlarmState();
@@ -350,9 +352,12 @@ class _CreateNewAlarmState extends State<CreateNewAlarm> {
                   longitude: marker_position.longitude,
                   radius: uf.sliderValueToDistance(sliderValue),
                   destination: input_string,
-                  isActive: false,
+                  isActive: true,
                 );
                 a.saveToDB();
+                if (widget.callback != null) {
+                  widget.callback!();
+                }
                 // для того чтобы заного сработал initState
                 Navigator.pushNamedAndRemoveUntil(
                     context, '/', (route) => false);
@@ -385,20 +390,9 @@ class _CreateNewAlarmState extends State<CreateNewAlarm> {
             SizedBox(height: 26),
             Stack(
               children: [
-                // CustomSearchField(
-                //   disabled: false,
-                //   suggestions: suggestions,
-                //   labeltextbold: "Точка назначения",
-                //   background_color: Colors.white,
-                //   controller: _controller,
-                //   onSelected: (String s) {
-                //     apiRequest({"type": "geo", "value": s});
-                //   },
-                // ),
                 CustomInputField(
                   labeltextbold: AppLocalizations.of(context)!.destination_point, // "Точка назначения",
                   background_color: Colors.white,
-                  // controller: _controller,
                   initialValue: input_string,
                   key: Key(input_string),
                   onTap: () {

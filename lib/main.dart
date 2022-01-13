@@ -222,7 +222,8 @@ class _MyAppState extends State<MyApp> {
         Locale("ru"),
         Locale("de"),
         Locale("fr"),
-        Locale("zh")
+        Locale("zh"),
+        Locale("es")
       ],
       routes: <String, WidgetBuilder>{
         "/main": (BuildContext context) => WithForegroundTask(

@@ -184,7 +184,7 @@ class _AlarmListScreenState extends State<AlarmListScreen> {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => CreateNewAlarm()));
+                          builder: (context) => CreateNewAlarm(callback: widget.onStart,)));
                 },
                 backgroundColor: Color(0xFF4FC28F),
               ),

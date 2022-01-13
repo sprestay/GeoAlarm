@@ -1,0 +1,37 @@
+{
+    "no_created_alarms": "Aucune alarme enregistrée",
+
+    "msg_on_alarm_list": "Horloge GeoAlarm.\nCréez une alarme - pour ce faire, définissez l'endroit sur la carte où vous allez. Puis définir le rayon - à quelle distance de l'endroit donné l'alarme doit se déclencher. Pour vous assurer que l'alarme est en cours d'exécution, vous pouvez utiliser la notification (elle doit être affichée en permanence).",
+
+    "where_are_you_moving": "Où est-ce que tu vas?",
+
+    "close": "Fermer",
+
+    "submit": "Confirmer",
+
+    "radius_to_detect": "Rayon d'actionnement",
+
+    "destination_point": "Destination",
+
+    "next": "Davantage",
+
+    "create": "Créer",
+
+    "msg_on_create_alarm": "Sur cet écran, vous devez définir la destination. Sélectionnez un point sur la carte, puis cliquez sur \"Suivant\" pour déterminer rayon de déclenchement.",
+
+    "give_full_access": "donner accès",
+
+    "go_to_settings": "Aller aux paramètres",
+
+    "geolocation_denied_on_permission_page": "L'application ne peut pas fonctionner sans un accès constant à l'emplacement. L'accès à la localisation peut être défini dans les paramètres. Allez dans les paramètres de l'application, sélectionnez la section \"Autorisations\" et donnez accès permanent à la géolocalisation.",
+
+    "geolocation_is_needed": "L'application détecte votre position et émet un bip lorsque vous atteignez emplacement donné. Nécessite un accès au travail à la géolocalisation. Fournissez-le, s'il vous plaît.",
+
+    "delete": "Supprimer",
+
+    "ondeleted": "supprimée",
+
+    "meters": "mètres",
+
+    "kilometers": "kilomètres"
+}

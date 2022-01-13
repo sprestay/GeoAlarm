@@ -1,21 +1,37 @@
 {
-    "helloWorld": "¡Hola Mundo!",
-    "no_created_alarms": "asdfaf",
-    "msg_on_alarm_list": "ES VERSION",
-    "where_are_you_moving": "ES where are you moving",
-    "close": "Закрыть",
-    "submit": "Подтвердить",
-    "radius_to_detect": "Радиус для срабатываем",
-    "destination_point": "Точка назначения",
-    "next": "Далее",
-    "create": "Создать",
-    "msg_on_create_alarm": "ES msg on create alarm",
-    "give_full_access": "Дать доступ",
-    "go_to_settings": "Перейти в настройки",
-    "geolocation_denied_on_permission_page": "ES gelocation denied",
-    "geolocation_is_needed": "ES geo is needed",
-    "delete": "Удалить",
-    "ondeleted": "удален",
-    "meters": "метров",
-    "kilometers": "километров"
+    "no_created_alarms": "No hay alarmas guardadas",
+
+    "msg_on_alarm_list": "Reloj Geoalarma.\nCree una alarma: para hacer esto, configure el lugar en el mapa al que se dirige. Entonces defina el radio: a qué distancia del lugar dado debe sonar la alarma. Para asegurarse de que la alarma se está ejecutando, puede usar la notificación (debe mostrarse constantemente).",
+
+    "where_are_you_moving": "¿A dónde vas?",
+
+    "close": "Cerca",
+
+    "submit": "Confirmar",
+
+    "radius_to_detect": "Radio de actuación",
+
+    "destination_point": "Destino",
+
+    "next": "Más",
+
+    "create": "Crear",
+
+    "msg_on_create_alarm": "En esta pantalla, debe configurar el destino. Seleccione un punto en el mapa, luego haga clic en \"Siguiente\" para determinar radio de disparo.",
+
+    "give_full_access": "dar acceso",
+
+    "go_to_settings": "Ir a la configuración",
+
+    "geolocation_denied_on_permission_page": "La aplicación no puede funcionar sin un acceso constante a la ubicación. El acceso a la ubicación se puede configurar en la configuración. Vaya a la configuración de la aplicación, seleccione la sección \"Permisos\" y dé acceso constante a la geolocalización.",
+
+    "geolocation_is_needed": "La aplicación detecta tu ubicación y reproduce un pitido cuando llegas ubicación dada. Requiere acceso al trabajo. a la geolocalización. Póngalo, por favor.",
+
+    "delete": "Borrar",
+
+    "ondeleted": "eliminada",
+
+    "meters": "metros",
+
+    "kilometers": "kilómetros"
 }

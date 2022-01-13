@@ -1,0 +1,37 @@
+{
+    "no_created_alarms": "Keine gespeicherten Alarme",
+
+    "msg_on_alarm_list": "GeoWecker.\nErstellen Sie einen Alarm - legen Sie dazu den Ort auf der Karte fest, an den Sie gehen. Dann Definieren Sie den Radius - in welcher Entfernung vom angegebenen Ort soll der Alarm losgehen.\nUm sicherzustellen, dass der Alarm läuft, können Sie die Benachrichtigung verwenden (sie sollte ständig angezeigt werden).",
+
+    "where_are_you_moving": "Wohin gehst du?",
+
+    "close": "Nah dran",
+
+    "submit": "Unterstützung",
+
+    "radius_to_detect": "Aktionsradius",
+
+    "destination_point": "Ziel",
+
+    "next": "Weiter",
+
+    "create": "Erstellen",
+
+    "msg_on_create_alarm": "Auf diesem Bildschirm müssen Sie das Ziel festlegen. Wählen Sie einen Punkt auf der Karte aus und klicken Sie dann zur Bestimmung auf \"Weiter\". Auslöseradius.",
+
+    "give_full_access": "Zugang geben",
+
+    "go_to_settings": "gehe zu den Einstellungen",
+
+    "geolocation_denied_on_permission_page": "Die Anwendung kann ohne ständigen Zugriff auf den Standort nicht funktionieren. Der Standortzugriff kann in den Einstellungen festgelegt werden.\nGehen Sie zu den Anwendungseinstellungen, wählen Sie den Abschnitt \"Berechtigungen\" und geben Sie sie ein ständiger Zugriff auf Geolokalisierung.",
+
+    "geolocation_is_needed": "Die App erkennt Ihren Standort und spielt einen Piepton, wenn Sie erreichen angegebenen Standort.\nZugriff auf die Arbeit erforderlich zur Geolokalisierung. Geben Sie es bitte an.",
+
+    "delete": "löschen",
+
+    "ondeleted": "entfernt",
+
+    "meters": "Meter",
+
+    "kilometers": "Kilometer"
+}

@@ -30,7 +30,7 @@ class _InfoWidgetState extends State<InfoWidget> {
           TextSpan(text: widget.msg, style: AppFontStyle.inter_regular_16_black)
       ..textDirection = TextDirection.ltr
       ..layout(minWidth: 0, maxWidth: width);
-    double text_height = textPainter.size.height;
+    double text_height = textPainter.size.height + 50;
     if (widget.mainbutton != null || widget.secondbutton != null) {
       text_height += 56 + 20;
     }
@@ -96,7 +96,7 @@ class _InfoWidgetState extends State<InfoWidget> {
                           child: SingleChildScrollView(
                         scrollDirection: Axis.vertical,
                         child: Text(
-                          widget.msg.replaceAll(RegExp(r'\s'), " ").trim(),
+                          widget.msg.trim(),
                           textAlign: TextAlign.left,
                           style: AppFontStyle.inter_regular_16_black,
                         ),

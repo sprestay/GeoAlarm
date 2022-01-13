@@ -1,21 +1,37 @@
 {
-    "helloWorld": "Hello World!",
-    "no_created_alarms": "0 alarms)",
-    "msg_on_alarm_list": "EN VERSION",
-    "where_are_you_moving": "Where are you moving?",
+    "no_created_alarms": "No saved alarms",
+
+    "msg_on_alarm_list": "GeoAlarm.\nCreate an alarm - to do this, set the place on the map where you are going. Then define the radius - at what distance from the given place the alarm should go off.\nTo make sure that the alarm is running, you can use the notification (it should be displayed constantly).",
+
+    "where_are_you_moving": "Where are you heading?",
+
     "close": "Close",
+
     "submit": "Submit",
-    "radius_to_detect": "Радиус to detect",
-    "destination_point": "Destination point",
+
+    "radius_to_detect": "Radius for actuation",
+
+    "destination_point": "Destination",
+
     "next": "Next",
+
     "create": "Create",
-    "msg_on_create_alarm": "EN msg on create alarm",
-    "give_full_access": "Give access",
+
+    "msg_on_create_alarm": "On this screen, you need to set the destination.\nSelect a point on the map, then click \"Next\" to determine trigger radius.",
+
+    "give_full_access": "give access",
+
     "go_to_settings": "Go to settings",
-    "geolocation_denied_on_permission_page": "EN geolocation_denied",
-    "geolocation_is_needed": "EN geolocation is needed",
+
+    "geolocation_denied_on_permission_page": "The application cannot work without constant access to the location. Location access can be set in the settings.\nGo to the application settings, select the \"Permissions\" section and give constant access to geolocation.",
+
+    "geolocation_is_needed": "The app detects your location and plays a beep when you reach given location.\nRequires access to work to geolocation. Provide it, please.",
+
     "delete": "Delete",
+
     "ondeleted": "deleted",
+
     "meters": "meters",
+    
     "kilometers": "kilometers"
 }
