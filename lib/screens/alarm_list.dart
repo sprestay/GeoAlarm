@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:geoalarm/screens/create_new_alarm.dart';
 import 'package:geoalarm/styles/fonts.dart';
-import 'package:geoalarm/styles/gradient.dart';
 import '../widgets/CustomAppBar.dart';
-import '../widgets/CircleButton.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../styles/icons.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -43,7 +42,6 @@ class _AlarmListScreenState extends State<AlarmListScreen> {
   @override
   void initState() {
     extractFromDB();
-    checkPermissions();
 
     /// вызов логики, после того, как отработает рендер
     SchedulerBinding.instance?.addPostFrameCallback((_) {
@@ -56,18 +54,6 @@ class _AlarmListScreenState extends State<AlarmListScreen> {
     _refreshController.refreshCompleted();
   }
 
-  void checkPermissions() async {
-    if (await Permission.locationAlways.isGranted) {
-      setState(() {
-        geoIsGranted = true;
-      });
-    }
-    if (await FlutterForegroundTask.isIgnoringBatteryOptimizations) {
-      setState(() {
-        ignoringBattery = true;
-      });
-    }
-  }
 
   Future<void> extractFromDB() async {
     SharedPreferences db = await SharedPreferences.getInstance();
@@ -130,7 +116,7 @@ class _AlarmListScreenState extends State<AlarmListScreen> {
               appBar: CustomAppBar(
                   allow_backstep: false,
                   show_info: () => uf.showBlockModalWindow(context,
-                      InfoMessages.msg_on_alarm_list, null, null, true)),
+                      AppLocalizations.of(context)!.msg_on_alarm_list, null, null, true)),
               body: SingleChildScrollView(
                 child: Center(
                   child: Container(
@@ -174,7 +160,7 @@ class _AlarmListScreenState extends State<AlarmListScreen> {
                                             )),
                                 itemCount: alarms.length)
                             : Text(
-                                "Нет сохраненных будильников",
+                                AppLocalizations.of(context)!.no_created_alarms,
                                 style: AppFontStyle.big_message,
                               ),
                         // TextButton(

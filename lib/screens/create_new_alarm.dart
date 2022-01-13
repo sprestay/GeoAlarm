@@ -9,15 +9,13 @@ import '../service/backend.dart';
 import '../widgets/CustomAppBar.dart';
 import '../widgets/CustomInputField.dart';
 import '../widgets/MainButton.dart';
-import '../styles/icons.dart';
 import '../service/globals.dart' as globals;
 import '../service/utility_functions.dart' as uf;
-import '../widgets/CustomSearchField.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../models/alarm.dart';
-import '../screens/alarm_list.dart';
-import '../styles/info_messages.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:address_search_field/address_search_field.dart';
+import 'package:flutter/scheduler.dart';
 
 class CreateNewAlarm extends StatefulWidget {
   const CreateNewAlarm({Key? key}) : super(key: key);
@@ -80,6 +78,11 @@ class _CreateNewAlarmState extends State<CreateNewAlarm> {
           });
         });
     getUserPosition();
+
+
+    SchedulerBinding.instance?.addPostFrameCallback((_) {
+      geoMethods = GeoMethods(googleApiKey: BackEnd().google_api_key, language: Localizations.localeOf(context).languageCode);
+    });
   }
 
   void _onRefresh() async {
@@ -139,9 +142,9 @@ class _CreateNewAlarmState extends State<CreateNewAlarm> {
         builder: AddressDialogBuilder(
           color: Color(0xFF4FC28F),
           backgroundColor: Color(0xFFF6F5F5),
-          hintText: "Куда направляетесь?",
-          cancelText: "Закрыть",
-          continueText: "Подтвердить",
+          hintText: AppLocalizations.of(context)!.where_are_you_moving, // "Куда направляетесь?",
+          cancelText: AppLocalizations.of(context)!.close, //  "Закрыть",
+          continueText: AppLocalizations.of(context)!.submit, // "Подтвердить",
           useButtons: false,
         ),
         onDone: (address) {
@@ -189,7 +192,7 @@ class _CreateNewAlarmState extends State<CreateNewAlarm> {
             appBar: CustomAppBar(
               allow_backstep: true,
               show_info: () => uf.showBlockModalWindow(
-                  context, InfoMessages.msg_on_create_alarm, null, null, true),
+                  context, AppLocalizations.of(context)!.msg_on_create_alarm, null, null, true),
               backstep_function: secondStep
                   ? () {
                       setState(() {
@@ -307,7 +310,7 @@ class _CreateNewAlarmState extends State<CreateNewAlarm> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Text(
-                    "Радиус для срабатывания: ${uf.metersToDistanceString(uf.sliderValueToDistance(sliderValue))}",
+                    "${AppLocalizations.of(context)!.radius_to_detect}: ${uf.metersToDistanceString(uf.sliderValueToDistance(sliderValue), context)}",
                     style: AppFontStyle.inter_semibold_12_black,
                   ),
                 ],
@@ -354,7 +357,7 @@ class _CreateNewAlarmState extends State<CreateNewAlarm> {
                 Navigator.pushNamedAndRemoveUntil(
                     context, '/', (route) => false);
               },
-              text: "создать",
+              text: AppLocalizations.of(context)!.create, //"создать",
             ),
             SizedBox(
               height: 34,
@@ -393,7 +396,7 @@ class _CreateNewAlarmState extends State<CreateNewAlarm> {
                 //   },
                 // ),
                 CustomInputField(
-                  labeltextbold: "Точка назначения",
+                  labeltextbold: AppLocalizations.of(context)!.destination_point, // "Точка назначения",
                   background_color: Colors.white,
                   // controller: _controller,
                   initialValue: input_string,
@@ -410,7 +413,7 @@ class _CreateNewAlarmState extends State<CreateNewAlarm> {
             MainButton(
               disabled: input_string.trim().length == 0,
               active: input_string.trim().length > 0,
-              text: "далее",
+              text: AppLocalizations.of(context)!.next, //"далее",
               callback: () {
                 setState(() {
                   input_string = _controller.text;

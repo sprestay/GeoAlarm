@@ -3,6 +3,7 @@ import '../styles/fonts.dart';
 import '../models/alarm.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:restart_app/restart_app.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../service/utility_functions.dart' as uf;
 
 class AlarmItem extends StatefulWidget {
@@ -61,12 +62,12 @@ class _AlarmItemState extends State<AlarmItem> {
               await widget.callback!();
             }
             ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('${alarm.destination} удален')));
+                SnackBar(content: Text('${alarm.destination} ${AppLocalizations.of(context)!.ondeleted}')));
           },
           backgroundColor: Color(0xFFca3e47),
           foregroundColor: Colors.white,
           icon: Icons.delete,
-          label: 'Удалить',
+          label: AppLocalizations.of(context)!.delete, //'Удалить',
         ),
       ]),
     );

@@ -1,0 +1,21 @@
+{
+    "helloWorld": "¡Hola Mundo!",
+    "no_created_alarms": "asdfaf",
+    "msg_on_alarm_list": "ES VERSION",
+    "where_are_you_moving": "ES where are you moving",
+    "close": "Закрыть",
+    "submit": "Подтвердить",
+    "radius_to_detect": "Радиус для срабатываем",
+    "destination_point": "Точка назначения",
+    "next": "Далее",
+    "create": "Создать",
+    "msg_on_create_alarm": "ES msg on create alarm",
+    "give_full_access": "Дать доступ",
+    "go_to_settings": "Перейти в настройки",
+    "geolocation_denied_on_permission_page": "ES gelocation denied",
+    "geolocation_is_needed": "ES geo is needed",
+    "delete": "Удалить",
+    "ondeleted": "удален",
+    "meters": "метров",
+    "kilometers": "километров"
+}

@@ -1,0 +1,21 @@
+{
+    "helloWorld": "Hello World!",
+    "no_created_alarms": "0 alarms)",
+    "msg_on_alarm_list": "EN VERSION",
+    "where_are_you_moving": "Where are you moving?",
+    "close": "Close",
+    "submit": "Submit",
+    "radius_to_detect": "Радиус to detect",
+    "destination_point": "Destination point",
+    "next": "Next",
+    "create": "Create",
+    "msg_on_create_alarm": "EN msg on create alarm",
+    "give_full_access": "Give access",
+    "go_to_settings": "Go to settings",
+    "geolocation_denied_on_permission_page": "EN geolocation_denied",
+    "geolocation_is_needed": "EN geolocation is needed",
+    "delete": "Delete",
+    "ondeleted": "deleted",
+    "meters": "meters",
+    "kilometers": "kilometers"
+}

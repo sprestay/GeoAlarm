@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import '../widgets/InfoWidget.dart';
 import 'package:vibration/vibration.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 const num function_pow = 2.7;
 
@@ -51,11 +52,13 @@ double sliderValueFromZoom(double zoomLevel) {
   return val_for_log * 2000;
 }
 
-String metersToDistanceString(double meters) {
+String metersToDistanceString(double meters, BuildContext context) {
+  String meters_string = AppLocalizations.of(context)!.meters;
+  String kilometers = AppLocalizations.of(context)!.kilometers;
   if (meters < 1000) {
-    return "${meters.round()} метров";
+    return "${meters.round()} ${meters_string}";
   } else {
-    return "${(meters / 1000).toStringAsFixed(1)} километров";
+    return "${(meters / 1000).toStringAsFixed(1)} ${kilometers}";
   }
 }
 

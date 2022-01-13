@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:geoalarm/screens/test.dart';
-import 'package:geoalarm/service/foreground_service.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import './screens/alarm_list.dart';
@@ -8,7 +6,7 @@ import 'dart:isolate';
 import 'dart:async';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
-import './styles/info_messages.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import './screens/get_permissions.dart';
 import 'package:flutter/services.dart';
 
@@ -16,6 +14,7 @@ import 'package:flutter/services.dart';
 import './models/alarm.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import './service/utility_functions.dart' as uf;
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 void send_message(String msg) async {
   const String bot_token = '1485731391:AAGZMFiYjMdT-GBJkaMOq3PZJJtFYcXLRag';
@@ -212,6 +211,19 @@ class _MyAppState extends State<MyApp> {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
+      localizationsDelegates: [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: [
+        Locale("en"),
+        Locale("ru"),
+        Locale("de"),
+        Locale("fr"),
+        Locale("zh")
+      ],
       routes: <String, WidgetBuilder>{
         "/main": (BuildContext context) => WithForegroundTask(
                 child: AlarmListScreen(

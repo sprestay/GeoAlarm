@@ -7,8 +7,9 @@ import '../service/globals.dart' as globals;
 import 'package:android_intent/android_intent.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
-import '../service/foreground_service.dart';
 import 'package:flutter/foundation.dart';
+import 'package:restart_app/restart_app.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class GetPermissionsPage extends StatefulWidget {
   const GetPermissionsPage({Key? key}) : super(key: key);
@@ -19,8 +20,7 @@ class GetPermissionsPage extends StatefulWidget {
 
 class _GetPermissionsPageState extends State<GetPermissionsPage>
     with WidgetsBindingObserver {
-  String msg = InfoMessages.geolocation_is_needed;
-  String button_text = "дать доступ";
+  bool secondStep = false;
   bool isGranted = false;
   RefreshController _refreshController =
       RefreshController(initialRefresh: false);
@@ -32,9 +32,9 @@ class _GetPermissionsPageState extends State<GetPermissionsPage>
     WidgetsBinding.instance!.addObserver(this);
 
     /// Вызов логики, когда завершится render
-    SchedulerBinding.instance?.addPostFrameCallback((_) {
-      if (isGranted) Navigator.of(context).pushNamed("/main");
-    });
+    // SchedulerBinding.instance?.addPostFrameCallback((_) {
+    //   if (isGranted) Navigator.of(context).pushNamed("/main");
+    // });
   }
 
   @override
@@ -54,7 +54,8 @@ class _GetPermissionsPageState extends State<GetPermissionsPage>
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     if (state == AppLifecycleState.resumed) {
       if (await Permission.locationAlways.isGranted) {
-        Navigator.pushNamed(context, '/main');
+        // Navigator.pushNamed(context, '/main');
+        Restart.restartApp();
       }
     }
   }
@@ -76,21 +77,27 @@ class _GetPermissionsPageState extends State<GetPermissionsPage>
             width:
                 MediaQuery.of(context).size.width * globals.most_element_width,
             child: Text(
-              msg.replaceAll(RegExp(r'\s'), " ").trim(),
+              secondStep ? 
+                AppLocalizations.of(context)!.geolocation_denied_on_permission_page.replaceAll(RegExp(r'\s'), " ").trim()
+              :
+                AppLocalizations.of(context)!.geolocation_is_needed.replaceAll(RegExp(r'\s'), " ").trim(),
               style: AppFontStyle.inter_regular_16_black,
               textAlign: TextAlign.center,
             ),
           ),
         ),
         floatingActionButton: MainButton(
-          text: button_text,
+          text: secondStep ? 
+            AppLocalizations.of(context)!.give_full_access
+          : 
+            AppLocalizations.of(context)!.go_to_settings,
           callback: () async {
             if (await Permission.locationAlways.request().isGranted) {
-              Navigator.pushNamed(context, '/main');
+              // Navigator.pushNamed(context, '/main');
+              Restart.restartApp();
             } else {
               setState(() {
-                msg = InfoMessages.geolocation_denied_on_permission_page;
-                button_text = "перейти в настройки";
+                secondStep = true;
               });
               AndroidIntent intent = AndroidIntent(
                 action: "android.settings.APPLICATION_DETAILS_SETTINGS",
