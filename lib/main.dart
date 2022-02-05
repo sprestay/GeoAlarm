@@ -16,8 +16,12 @@ import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import './service/utility_functions.dart' as uf;
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
+// реклама
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  MobileAds.instance.initialize();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
       .then((_) {
     runApp(MyApp());

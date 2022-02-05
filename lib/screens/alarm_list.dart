@@ -19,6 +19,10 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:android_intent/android_intent.dart';
 
+// реклама
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import '../widgets/banner_inline_page.dart';
+
 class AlarmListScreen extends StatefulWidget {
   Function? onStart;
   Function? onStop;
@@ -31,7 +35,8 @@ class AlarmListScreen extends StatefulWidget {
   _AlarmListScreenState createState() => _AlarmListScreenState();
 }
 
-class _AlarmListScreenState extends State<AlarmListScreen> {
+class _AlarmListScreenState extends State<AlarmListScreen>
+    with WidgetsBindingObserver {
   List<Alarm> alarms = [];
   bool geoIsGranted = false;
   bool ignoringBattery = false;
@@ -40,6 +45,7 @@ class _AlarmListScreenState extends State<AlarmListScreen> {
 
   @override
   void initState() {
+    WidgetsBinding.instance!.addObserver(this);
     extractFromDB();
 
     /// вызов логики, после того, как отработает рендер
@@ -48,8 +54,30 @@ class _AlarmListScreenState extends State<AlarmListScreen> {
     });
   }
 
+  @override
+  void dispose() {
+    WidgetsBinding.instance!.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) async {
+    if (state == AppLifecycleState.resumed) {
+      if (await Permission.locationAlways.isGranted) {
+        // Navigator.pushNamed(context, '/main');
+        setState(() {
+          ignoringBattery = true;
+        });
+      }
+    }
+  }
+
   void _onRefresh() async {
     extractFromDB();
+    bool r = await FlutterForegroundTask.isIgnoringBatteryOptimizations;
+    setState(() {
+      ignoringBattery = r;
+    });
     _refreshController.refreshCompleted();
   }
 
@@ -73,28 +101,35 @@ class _AlarmListScreenState extends State<AlarmListScreen> {
   }
 
   void triggerModalWindows(BuildContext context) async {
-    SharedPreferences db = await SharedPreferences.getInstance();
-    int? message_shown_counter = db.getInt("message_shown_counter");
-    bool? never_show_again = db.getBool("never_show_again");
-    await Future.delayed(Duration(seconds: 1));
+    bool res = await FlutterForegroundTask.isIgnoringBatteryOptimizations;
+    if (res) {
+      setState(() {
+        ignoringBattery = true;
+      });
+    } else {
+      SharedPreferences db = await SharedPreferences.getInstance();
+      int? message_shown_counter = db.getInt("message_shown_counter");
+      bool? never_show_again = db.getBool("never_show_again");
+      await Future.delayed(Duration(seconds: 1));
 
-    if (!ignoringBattery && never_show_again != true) {
-      uf.showBlockModalWindow(
-          context: context,
-          msg: AppLocalizations.of(context)!.battery,
-          submit: () async => await batteryOptimization(),
-          skip: () => Navigator.pop(context),
-          skip_forever:
-              message_shown_counter != null && message_shown_counter >= 1
-                  ? () {
-                      db.setBool("never_show_again", true);
-                      Navigator.pop(context);
-                    }
-                  : null,
-          isClosable: false);
+      if (!ignoringBattery && never_show_again != true) {
+        uf.showBlockModalWindow(
+            context: context,
+            msg: AppLocalizations.of(context)!.battery,
+            submit: () async => await batteryOptimization(),
+            skip: () => Navigator.pop(context),
+            skip_forever:
+                message_shown_counter != null && message_shown_counter >= 1
+                    ? () {
+                        db.setBool("never_show_again", true);
+                        Navigator.pop(context);
+                      }
+                    : null,
+            isClosable: false);
 
-      db.setInt("message_shown_counter",
-          message_shown_counter == null ? 1 : message_shown_counter + 1);
+        db.setInt("message_shown_counter",
+            message_shown_counter == null ? 1 : message_shown_counter + 1);
+      }
     }
   }
 
@@ -121,6 +156,7 @@ class _AlarmListScreenState extends State<AlarmListScreen> {
                         globals.most_element_width,
                     child: Column(
                       children: [
+                        alarms.length != 0 ? BannerInlinePage() : Container(),
                         alarms.length != 0
                             ? ListView.separated(
                                 shrinkWrap: true,
@@ -178,5 +214,11 @@ class _AlarmListScreenState extends State<AlarmListScreen> {
               floatingActionButtonLocation:
                   FloatingActionButtonLocation.centerFloat),
         ));
+  }
+
+  // COMPLETE: Change return type to Future<InitializationStatus>
+  Future<InitializationStatus> _initGoogleMobileAds() {
+    // TODO: Initialize Google Mobile Ads SDK
+    return MobileAds.instance.initialize();
   }
 }

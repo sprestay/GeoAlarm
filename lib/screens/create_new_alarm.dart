@@ -16,6 +16,8 @@ import '../models/alarm.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:address_search_field/address_search_field.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import '../service/ad_helper.dart';
 
 class CreateNewAlarm extends StatefulWidget {
   Function? callback;
@@ -48,6 +50,10 @@ class _CreateNewAlarmState extends State<CreateNewAlarm> {
     language: 'ru',
   );
   TextEditingController modal_controller = TextEditingController();
+
+  // рекламный блок
+  InterstitialAd? _interstitialAd;
+  bool _isInterstitialAdReady = false;
 
   @override
   void initState() {
@@ -86,6 +92,8 @@ class _CreateNewAlarmState extends State<CreateNewAlarm> {
           googleApiKey: BackEnd().google_api_key,
           language: Localizations.localeOf(context).languageCode);
     });
+
+    _loadInterstitialAd(); // инициализируем рекламку
   }
 
   void _onRefresh() async {
@@ -180,6 +188,36 @@ class _CreateNewAlarmState extends State<CreateNewAlarm> {
       marker_position = latLng.LatLng(
           controller.center.latitude, controller.center.longitude);
     });
+  }
+
+  void _loadInterstitialAd() {
+    InterstitialAd.load(
+      adUnitId: AdHelper.interstitialAdUnitId,
+      request: AdRequest(),
+      adLoadCallback: InterstitialAdLoadCallback(
+        onAdLoaded: (ad) {
+          this._interstitialAd = ad;
+
+          ad.fullScreenContentCallback = FullScreenContentCallback(
+            onAdDismissedFullScreenContent: (ad) {
+              Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+            },
+          );
+
+          _isInterstitialAdReady = true;
+        },
+        onAdFailedToLoad: (err) {
+          print('Failed to load an interstitial ad: ${err.message}');
+          _isInterstitialAdReady = false;
+        },
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _interstitialAd?.dispose();
+    super.dispose();
   }
 
   @override
@@ -363,8 +401,12 @@ class _CreateNewAlarmState extends State<CreateNewAlarm> {
                   widget.callback!();
                 }
                 // для того чтобы заного сработал initState
-                Navigator.pushNamedAndRemoveUntil(
-                    context, '/', (route) => false);
+                if (_isInterstitialAdReady) {
+                  _interstitialAd?.show();
+                } else {
+                  Navigator.pushNamedAndRemoveUntil(
+                      context, '/', (route) => false);
+                }
               },
               text: AppLocalizations.of(context)!.create, //"создать",
             ),
