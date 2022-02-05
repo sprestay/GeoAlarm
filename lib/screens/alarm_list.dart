@@ -15,7 +15,6 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 /// для проверки разрешений
 import '../service/utility_functions.dart' as uf;
-import '../styles/info_messages.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:android_intent/android_intent.dart';
@@ -45,7 +44,7 @@ class _AlarmListScreenState extends State<AlarmListScreen> {
 
     /// вызов логики, после того, как отработает рендер
     SchedulerBinding.instance?.addPostFrameCallback((_) {
-      // triggerModalWindows(context);
+      triggerModalWindows(context);
     });
   }
 
@@ -53,7 +52,6 @@ class _AlarmListScreenState extends State<AlarmListScreen> {
     extractFromDB();
     _refreshController.refreshCompleted();
   }
-
 
   Future<void> extractFromDB() async {
     SharedPreferences db = await SharedPreferences.getInstance();
@@ -75,39 +73,35 @@ class _AlarmListScreenState extends State<AlarmListScreen> {
   }
 
   void triggerModalWindows(BuildContext context) async {
+    SharedPreferences db = await SharedPreferences.getInstance();
+    int? message_shown_counter = db.getInt("message_shown_counter");
+    bool? never_show_again = db.getBool("never_show_again");
     await Future.delayed(Duration(seconds: 1));
-    // if (!geoIsGranted) {
-    //   Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
 
-    //   ///
-    //   /// После выхода из настроек модальное окно закрывалось, и можно было пользоваться
-    //   /// приложением без доступа к геолокации
-    //   ///
-    //   uf.showBlockModalWindow(context, InfoMessages.geolocation_is_forbidden,
-    //       () async {
-    //     AndroidIntent intent = AndroidIntent(
-    //       action: "android.settings.APPLICATION_DETAILS_SETTINGS",
-    //       package: "com.example.geoalarm",
-    //       data: "package:com.example.geoalarm",
-    //     );
-    //     intent.launch();
-    //   }, null, false);
-    // }
-
-    if (!ignoringBattery) {
+    if (!ignoringBattery && never_show_again != true) {
       uf.showBlockModalWindow(
-          context,
-          InfoMessages.ignore_battery_optimization,
-          () async => await batteryOptimization(),
-          () => Navigator.pop(context),
-          false);
+          context: context,
+          msg: AppLocalizations.of(context)!.battery,
+          submit: () async => await batteryOptimization(),
+          skip: () => Navigator.pop(context),
+          skip_forever:
+              message_shown_counter != null && message_shown_counter >= 1
+                  ? () {
+                      db.setBool("never_show_again", true);
+                      Navigator.pop(context);
+                    }
+                  : null,
+          isClosable: false);
+
+      db.setInt("message_shown_counter",
+          message_shown_counter == null ? 1 : message_shown_counter + 1);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-        onWillPop: () async => false,
+        onWillPop: () async => true,
         child: SmartRefresher(
           controller: _refreshController,
           enablePullDown: true,
@@ -115,8 +109,10 @@ class _AlarmListScreenState extends State<AlarmListScreen> {
           child: Scaffold(
               appBar: CustomAppBar(
                   allow_backstep: false,
-                  show_info: () => uf.showBlockModalWindow(context,
-                      AppLocalizations.of(context)!.msg_on_alarm_list, null, null, true)),
+                  show_info: () => uf.showBlockModalWindow(
+                      context: context,
+                      msg: AppLocalizations.of(context)!.msg_on_alarm_list,
+                      isClosable: true)),
               body: SingleChildScrollView(
                 child: Center(
                   child: Container(
@@ -135,7 +131,6 @@ class _AlarmListScreenState extends State<AlarmListScreen> {
                                     alarm: alarms[index],
                                     callback: () {
                                       if (widget.onStart != null) {
-                                        send_message("Calling update function");
                                         widget.onStart!();
                                       }
                                     },
@@ -163,16 +158,6 @@ class _AlarmListScreenState extends State<AlarmListScreen> {
                                 AppLocalizations.of(context)!.no_created_alarms,
                                 style: AppFontStyle.big_message,
                               ),
-                        // TextButton(
-                        //     onPressed: () {
-                        //       uf.callRingtone();
-                        //     },
-                        //     child: Text("PlayMelody")),
-                        // TextButton(
-                        //     onPressed: () {
-                        //       uf.stopMelody();
-                        //     },
-                        //     child: Text("StopMelody"))
                       ],
                     ),
                   ),
@@ -184,7 +169,9 @@ class _AlarmListScreenState extends State<AlarmListScreen> {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => CreateNewAlarm(callback: widget.onStart,)));
+                          builder: (context) => CreateNewAlarm(
+                                callback: widget.onStart,
+                              )));
                 },
                 backgroundColor: Color(0xFF4FC28F),
               ),

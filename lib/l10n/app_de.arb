@@ -33,5 +33,13 @@
 
     "meters": "Meter",
 
-    "kilometers": "Kilometer"
+    "kilometers": "Kilometer",
+
+    "battery" : "Das Android-System deaktiviert regelmäßig Hintergrundprozesse, um Energie zu sparen. In diesem Fall funktioniert der Alarm möglicherweise nicht. Deaktivieren Sie die Batterieoptimierung für die GeoWecker App.",
+
+    "on_start_message" : "Wecker gestartet",
+
+    "skip": "überspringen",
+
+    "never_show_again": "Nicht mehr anzeigen"
 }

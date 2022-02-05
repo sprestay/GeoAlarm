@@ -104,7 +104,7 @@ void callRingtone() async {
   if (await Vibration.hasAmplitudeControl()) {
     Vibration.vibrate(amplitude: 255, duration: 10000000);
   } else if (await Vibration.hasVibrator()) {
-      Vibration.vibrate(duration: 10000000);
+    Vibration.vibrate(duration: 10000000);
   }
 }
 
@@ -113,8 +113,13 @@ void stopMelody() async {
   FlutterRingtonePlayer.stop();
 }
 
-void showBlockModalWindow(BuildContext context, String msg,
-    [Function? submit = null, Function? skip = null, bool isClosable = true]) {
+void showBlockModalWindow(
+    {required BuildContext context,
+    required String msg,
+    Function? submit = null,
+    Function? skip = null,
+    Function? skip_forever = null,
+    bool isClosable = true}) {
   Navigator.push(
       context,
       PageRouteBuilder(
@@ -126,6 +131,7 @@ void showBlockModalWindow(BuildContext context, String msg,
               msg: msg,
               mainbutton: submit,
               secondbutton: skip,
+              thirdbutton: skip_forever,
               isClosable: isClosable,
             );
           }));

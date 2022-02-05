@@ -3,12 +3,14 @@ import 'package:ionicons/ionicons.dart';
 import '../widgets/MainButton.dart';
 import '../service/globals.dart' as globals;
 import '../styles/fonts.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'dart:ui' as ui;
 
 class InfoWidget extends StatefulWidget {
   late String msg;
   Function? secondbutton;
   Function? mainbutton;
+  Function? thirdbutton;
   late bool isClosable;
 
   InfoWidget(
@@ -16,6 +18,7 @@ class InfoWidget extends StatefulWidget {
       required this.msg,
       this.secondbutton,
       this.mainbutton,
+      this.thirdbutton,
       this.isClosable = true})
       : super(key: key);
 
@@ -24,6 +27,8 @@ class InfoWidget extends StatefulWidget {
 }
 
 class _InfoWidgetState extends State<InfoWidget> {
+  // bool neverShowAgain = false;
+
   double calculateHeight(double width) {
     TextPainter textPainter = TextPainter()
       ..text =
@@ -39,6 +44,9 @@ class _InfoWidgetState extends State<InfoWidget> {
     }
     if (widget.isClosable) {
       text_height += 40;
+    }
+    if (widget.thirdbutton != null) {
+      text_height += 30;
     }
     return text_height;
   }
@@ -117,7 +125,7 @@ class _InfoWidgetState extends State<InfoWidget> {
                               width: MediaQuery.of(context).size.width *
                                   0.9 *
                                   globals.most_element_width,
-                              text: "подтвердить",
+                              text: AppLocalizations.of(context)!.submit,
                             )
                           : Container(),
                       widget.secondbutton != null
@@ -126,8 +134,20 @@ class _InfoWidgetState extends State<InfoWidget> {
                                 if (widget.secondbutton != null)
                                   widget.secondbutton!();
                               },
-                              child: Text("ПРОПУСТИТЬ"))
-                          : Container()
+                              child: Text(AppLocalizations.of(context)!
+                                  .skip
+                                  .toUpperCase()))
+                          : Container(),
+                      widget.thirdbutton != null
+                          ? TextButton(
+                              onPressed: () {
+                                if (widget.thirdbutton != null)
+                                  widget.thirdbutton!();
+                              },
+                              child: Text(AppLocalizations.of(context)!
+                                  .never_show_again
+                                  .toUpperCase()))
+                          : Container(),
                     ],
                   ),
                 ),
@@ -137,3 +157,23 @@ class _InfoWidgetState extends State<InfoWidget> {
         ));
   }
 }
+
+
+// Container(
+//                         child: Row(
+//                           mainAxisAlignment: MainAxisAlignment.center,
+//                           children: [
+//                             Checkbox(
+//                                 activeColor: Color(0xFF68C78E),
+//                                 shape: CircleBorder(),
+//                                 value: neverShowAgain,
+//                                 onChanged: (bool? value) {
+//                                   setState(() {
+//                                     neverShowAgain = value!;
+//                                   });
+//                                 }),
+//                             Text("Не показывать больше")
+//                           ],
+//                         ),
+//                         color: Colors.amber,
+//                       ),

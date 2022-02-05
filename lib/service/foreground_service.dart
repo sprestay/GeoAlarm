@@ -6,17 +6,6 @@ import 'dart:isolate';
 import '../models/alarm.dart';
 // import '../main.dart';
 
-void send_message(String msg) async {
-  const String bot_token = '1485731391:AAGZMFiYjMdT-GBJkaMOq3PZJJtFYcXLRag';
-  const String chat_id = '650882495';
-  Uri url = Uri.https("api.telegram.org", "bot$bot_token/sendMessage", {
-    'bot_token': bot_token,
-    'chat_id': chat_id,
-    'text': msg,
-  });
-  final response = await http.get(url);
-}
-
 class TrackingTask extends TaskHandler {
   late List<Alarm> targets;
   StreamSubscription<Position>? streamSubscription;
@@ -37,11 +26,8 @@ class TrackingTask extends TaskHandler {
         double distance = Geolocator.distanceBetween(
             event.latitude, event.longitude, alarm.latitude, alarm.longitude);
         if (distance <= alarm.radius) {
-          send_message("Достигли точки назначения! ${alarm.destination}");
           // удалить из массива
         }
-        send_message(
-            '${alarm.destination}, оставшееся расстояние - ${distance.round()}');
       }
       sendPort?.send(event);
     });

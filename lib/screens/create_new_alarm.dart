@@ -81,9 +81,10 @@ class _CreateNewAlarmState extends State<CreateNewAlarm> {
         });
     getUserPosition();
 
-
     SchedulerBinding.instance?.addPostFrameCallback((_) {
-      geoMethods = GeoMethods(googleApiKey: BackEnd().google_api_key, language: Localizations.localeOf(context).languageCode);
+      geoMethods = GeoMethods(
+          googleApiKey: BackEnd().google_api_key,
+          language: Localizations.localeOf(context).languageCode);
     });
   }
 
@@ -144,7 +145,8 @@ class _CreateNewAlarmState extends State<CreateNewAlarm> {
         builder: AddressDialogBuilder(
           color: Color(0xFF4FC28F),
           backgroundColor: Color(0xFFF6F5F5),
-          hintText: AppLocalizations.of(context)!.where_are_you_moving, // "Куда направляетесь?",
+          hintText: AppLocalizations.of(context)!
+              .where_are_you_moving, // "Куда направляетесь?",
           cancelText: AppLocalizations.of(context)!.close, //  "Закрыть",
           continueText: AppLocalizations.of(context)!.submit, // "Подтвердить",
           useButtons: false,
@@ -194,7 +196,9 @@ class _CreateNewAlarmState extends State<CreateNewAlarm> {
             appBar: CustomAppBar(
               allow_backstep: true,
               show_info: () => uf.showBlockModalWindow(
-                  context, AppLocalizations.of(context)!.msg_on_create_alarm, null, null, true),
+                  context: context,
+                  msg: AppLocalizations.of(context)!.msg_on_create_alarm,
+                  isClosable: true),
               backstep_function: secondStep
                   ? () {
                       setState(() {
@@ -391,7 +395,8 @@ class _CreateNewAlarmState extends State<CreateNewAlarm> {
             Stack(
               children: [
                 CustomInputField(
-                  labeltextbold: AppLocalizations.of(context)!.destination_point, // "Точка назначения",
+                  labeltextbold: AppLocalizations.of(context)!
+                      .destination_point, // "Точка назначения",
                   background_color: Colors.white,
                   initialValue: input_string,
                   key: Key(input_string),
@@ -414,7 +419,6 @@ class _CreateNewAlarmState extends State<CreateNewAlarm> {
                   secondStep = true;
                   sliderValue = uf.sliderValueFromZoom(controller.zoom);
                 });
-                print(uf.sliderValueFromZoom(controller.zoom));
               },
             ),
             SizedBox(height: 34),

@@ -16,17 +16,6 @@ import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import './service/utility_functions.dart' as uf;
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-void send_message(String msg) async {
-  const String bot_token = '1485731391:AAGZMFiYjMdT-GBJkaMOq3PZJJtFYcXLRag';
-  const String chat_id = '650882495';
-  Uri url = Uri.https("api.telegram.org", "bot$bot_token/sendMessage", {
-    'bot_token': bot_token,
-    'chat_id': chat_id,
-    'text': msg,
-  });
-  final response = await http.get(url);
-}
-
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
@@ -75,7 +64,8 @@ class TrackingTask extends TaskHandler {
 
     /// Если нет будильников - то дропаем сервис
     sendPort?.send(targets.length);
-    if (targets.length == 0) { // костыль. сервис не останавливается после перезагрузки
+    if (targets.length == 0) {
+      // костыль. сервис не останавливается после перезагрузки
       await FlutterForegroundTask.stopService();
     }
 
@@ -93,9 +83,7 @@ class TrackingTask extends TaskHandler {
         }
       }).toList();
 
-
       if (done_alarms.length > 0) {
-        send_message("Достигли пункта назначения!");
         FlutterForegroundTask.wakeUpScreen();
         uf.callRingtone();
         startCallback();
@@ -137,26 +125,17 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<bool> startForegroundTask() async {
-    send_message("In startTask");
     ReceivePort? receivePort;
     if (await FlutterForegroundTask.isRunningService) {
       receivePort = await FlutterForegroundTask.restartService();
     } else {
       receivePort = await FlutterForegroundTask.startService(
-          notificationTitle: 'GeoAlarm Будильник установлен',
-          notificationText: 'Будильник сработает, я надеюсь',
+          notificationTitle: "Alarm is started",
+          notificationText: '',
           callback: startCallback);
     }
 
     if (receivePort != null) {
-      // _receivePort = receivePort;
-      // _receivePort?.listen((message) async {
-      //   if (message is int && message == 0) {
-      //     send_message("Stopping service cause length == 0");
-      //     await stopForegroundTask();
-      //     initState();
-      //   }
-      // });
       return true;
     }
     return false;

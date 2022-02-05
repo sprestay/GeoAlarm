@@ -33,5 +33,13 @@
 
     "meters": "mètres",
 
-    "kilometers": "kilomètres"
+    "kilometers": "kilomètres",
+
+    "battery" : "Le système Android désactive périodiquement les processus d'arrière-plan pour économiser de l'énergie. Dans ce cas, l'alarme peut ne pas fonctionner. Désactivez l'optimisation de la batterie pour l'application GeoAlarm.",
+
+    "on_start_message" : "Le réveil a commencé",
+
+    "skip": "sauter",
+
+    "never_show_again": "Ne plus afficher"
 }

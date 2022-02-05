@@ -33,5 +33,13 @@
 
     "meters": "米",
 
-    "kilometers": "公里"
+    "kilometers": "公里",
+
+    "battery" : "Android 系统会定期禁用后台进程以节省电量。 在这种情况下，警报可能不起作用。 禁用地理警报应用程序的电池优化。",
+
+    "on_start_message" : "闹钟开始了",
+
+    "skip": "跳过",
+
+    "never_show_again": "不再显示"
 }

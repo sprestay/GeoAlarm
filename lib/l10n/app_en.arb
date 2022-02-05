@@ -33,5 +33,13 @@
 
     "meters": "meters",
     
-    "kilometers": "kilometers"
+    "kilometers": "kilometers",
+
+    "battery" : "The Android system periodically disables background processes to save power. In this case, the alarm may not work. Disable battery optimization for the GeoAlarm app.",
+
+    "on_start_message" : "Alarm clock started",
+
+    "skip": "skip",
+
+    "never_show_again": "Don't show again"
 }
