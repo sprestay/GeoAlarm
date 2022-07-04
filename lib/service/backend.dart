@@ -4,7 +4,7 @@ import 'dart:io';
 import './utility_functions.dart' as uf;
 
 class BackEnd {
-  String google_api_key = "AIzaSyCARAl30gjHY2khqkJxXLNp_vo2st9O76c";
+  String google_api_key = "YOUR KEY";
   String geocoding_url = "https://maps.googleapis.com/maps/api/geocode/json";
   String autocomple_url =
       "https://maps.googleapis.com/maps/api/place/autocomplete/json";
